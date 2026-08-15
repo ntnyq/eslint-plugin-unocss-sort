@@ -29,6 +29,9 @@ import {
   resolveSortOptions,
 } from './utils'
 
+/**
+ * Resolved sorting behavior and rank for one utility group
+ */
 interface GroupDescriptor {
   fallbackSort?: FallbackSort
   order?: SortOrder
@@ -36,6 +39,9 @@ interface GroupDescriptor {
   type?: SortType
 }
 
+/**
+ * Comparable classification metadata for one variant segment
+ */
 interface VariantKey {
   group: string
   groupRank: number
@@ -43,6 +49,9 @@ interface VariantKey {
   responsiveRank: number
 }
 
+/**
+ * Fully classified utility token used by the sorting engine
+ */
 interface SortingNode {
   analysis: UtilityAnalysis
   base: string
@@ -55,16 +64,25 @@ interface SortingNode {
   variants: VariantKey[]
 }
 
+/**
+ * Supported lookup containers for precomputed UnoCSS analysis
+ */
 type AnalysisCollection =
   | Map<string, UtilityAnalysis>
   | Record<string, UtilityAnalysis | undefined>
 
+/**
+ * Analysis fallback used when no UnoCSS metadata is available
+ */
 const emptyAnalysis: UtilityAnalysis = {
   properties: [],
   recognized: false,
   shortcut: false,
 }
 
+/**
+ * CSS property patterns mapped to semantic utility groups
+ */
 const propertyGroups: readonly [RegExp, string][] = [
   [/^(?:visibility|overflow|object-|columns?$)/u, 'layout'],
   [/^(?:position|inset|top|right|bottom|left|z-index)/u, 'position'],

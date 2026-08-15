@@ -1,3 +1,6 @@
+/**
+ * JSON schema for string and descriptor regular-expression options
+ */
 const regexOptionSchema = {
   anyOf: [
     { type: 'string' },
@@ -13,6 +16,9 @@ const regexOptionSchema = {
   ],
 } as const
 
+/**
+ * JSON schema for secondary sorting configuration
+ */
 const fallbackSortSchema = {
   additionalProperties: false,
   properties: {
@@ -25,6 +31,9 @@ const fallbackSortSchema = {
   type: 'object',
 } as const
 
+/**
+ * JSON schema for supported primary sorting strategies
+ */
 const sortTypeSchema = {
   enum: [
     'semantic',
@@ -37,6 +46,9 @@ const sortTypeSchema = {
   ],
 } as const
 
+/**
+ * JSON schema for string and object target matchers
+ */
 const targetMatcherSchema = {
   anyOf: [
     { const: 'strings' },
@@ -52,11 +64,17 @@ const targetMatcherSchema = {
   ],
 } as const
 
+/**
+ * JSON schema properties shared by every target selector
+ */
 const targetProperties = {
   match: { items: targetMatcherSchema, type: 'array' },
   name: regexOptionSchema,
 } as const
 
+/**
+ * JSON schema for attribute, callee, tag, and variable selectors
+ */
 const targetSelectorSchema = {
   anyOf: [
     {

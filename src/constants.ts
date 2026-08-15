@@ -258,4 +258,7 @@ export const SEMANTIC_PATTERNS: readonly {
  */
 export const RESPONSIVE_VARIANTS = ['sm', 'md', 'lg', 'xl', '2xl'] as const
 
+/**
+ * Built-in responsive variant name
+ */
 export type TResponsiveVariant = (typeof RESPONSIVE_VARIANTS)[number]

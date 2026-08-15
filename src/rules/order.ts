@@ -8,6 +8,9 @@ import { resolveTargets } from '../targets'
 import type { OrderOptions } from '../types'
 import { createClassListVisitors } from '../visitors'
 
+/**
+ * ESLint rule that enforces configured UnoCSS utility ordering
+ */
 export const ruleOrder: Rule.RuleModule = {
   create(context) {
     const options = (context.options[0] ?? {}) as OrderOptions

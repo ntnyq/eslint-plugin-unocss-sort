@@ -1,5 +1,15 @@
+/**
+ * Result of removing exact duplicate tokens from one static class list
+ */
 export interface DuplicateClassResult {
+  /**
+   * Duplicate token names in first-duplicate encounter order
+   */
   duplicates: string[]
+
+  /**
+   * Class list with duplicate occurrences removed
+   */
   output: string
 }
 

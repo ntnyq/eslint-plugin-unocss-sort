@@ -19,12 +19,29 @@ import {
 import type { TargetValueKind } from './targets'
 import type { CalleeTargetSelector, TargetSelector } from './types'
 
+/**
+ * Static class-list text and its replaceable source range
+ */
 export interface ClassListLocation {
+  /**
+   * Class-list text without surrounding literal delimiters
+   */
   input: string
+
+  /**
+   * AST node associated with the source range
+   */
   node: AstNode
+
+  /**
+   * Replaceable source offsets containing only the class-list text
+   */
   range: [number, number]
 }
 
+/**
+ * Callback invoked for each unique class-list location
+ */
 type ClassListVisitor = (location: ClassListLocation) => void
 
 /**

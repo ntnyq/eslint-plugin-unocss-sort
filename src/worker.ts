@@ -16,12 +16,18 @@ import type { Shortcut, UnoGenerator } from '@unocss/core'
 import { runAsWorker } from 'synckit'
 import type { UtilityAnalysis } from './types'
 
+/**
+ * Cached UnoCSS generator and the source state used to validate it
+ */
 interface GeneratorCacheEntry {
   fingerprint: string
   generator: UnoGenerator
   sources: string[]
 }
 
+/**
+ * Generator cache keyed by explicit config path or discovery directory
+ */
 const generatorCache = new Map<string, Promise<GeneratorCacheEntry>>()
 
 process.env['ESLINT'] ||= 'true'

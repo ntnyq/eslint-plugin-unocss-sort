@@ -1,11 +1,17 @@
 import { isArray, isRecord, isString } from '@ntnyq/utils'
 import type { Rule } from 'eslint'
 
+/**
+ * Minimal source location shape shared by supported ESTree-compatible parsers
+ */
 interface AstLocation {
   end: { column: number; line: number }
   start: { column: number; line: number }
 }
 
+/**
+ * Parser-agnostic AST node subset consumed by class-list visitors
+ */
 export interface AstNode {
   alternate?: unknown
   argument?: unknown
@@ -34,6 +40,9 @@ export interface AstNode {
   value?: unknown
 }
 
+/**
+ * Parser services used to combine Vue template and script visitors
+ */
 export interface ParserServices {
   defineTemplateBodyVisitor?: (
     templateVisitor: Record<string, (node: AstNode) => void>,
@@ -41,6 +50,9 @@ export interface ParserServices {
   ) => Rule.RuleListener
 }
 
+/**
+ * Object side treated as class-bearing by legacy expression traversal
+ */
 export type ExpressionObjectMode = 'keys' | 'values'
 
 /**

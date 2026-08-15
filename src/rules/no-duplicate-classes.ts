@@ -5,6 +5,9 @@ import { resolveTargets } from '../targets'
 import type { NoDuplicateClassesOptions } from '../types'
 import { createClassListVisitors } from '../visitors'
 
+/**
+ * ESLint rule that removes duplicate utilities from static class lists
+ */
 export const ruleNoDuplicateClasses: Rule.RuleModule = {
   create(context) {
     const options = (context.options[0] ?? {}) as NoDuplicateClassesOptions

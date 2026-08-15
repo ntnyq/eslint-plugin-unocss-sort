@@ -1,7 +1,13 @@
 import { isRecord } from '@ntnyq/utils'
 import type { Rule } from 'eslint'
 
+/**
+ * UnoCSS settings shared with the official ESLint integration
+ */
 export interface UnoSettings {
+  /**
+   * Explicit UnoCSS configuration path
+   */
   configPath?: string
 }
 

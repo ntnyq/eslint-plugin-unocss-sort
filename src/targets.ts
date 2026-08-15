@@ -8,6 +8,9 @@ import type {
 } from './types'
 import { matchesRegexOption, normalizeAttributeName } from './utils'
 
+/**
+ * Expression location categories supported by target matchers
+ */
 export type TargetValueKind = 'strings' | 'object-keys' | 'object-values'
 
 /**
