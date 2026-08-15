@@ -22,7 +22,9 @@ export const ruleNoDuplicateClasses: Rule.RuleModule = {
         }
 
         context.report({
-          data: { duplicates: duplicates.join(', ') },
+          data: {
+            duplicates: duplicates.join(', '),
+          },
           fix: fixer => fixer.replaceTextRange(range, output),
           messageId: 'duplicateClasses',
           node,
@@ -33,7 +35,7 @@ export const ruleNoDuplicateClasses: Rule.RuleModule = {
   meta: {
     docs: {
       description: 'Disallow duplicate UnoCSS utilities in static class lists',
-      url: 'https://github.com/ntnyq/eslint-plugin-unocss-sort#no-duplicate-classes',
+      url: 'https://github.com/ntnyq/eslint-plugin-unocss-sort/blob/main/docs/rules/no-duplicate-classes.md',
     },
     fixable: 'code',
     messages: {

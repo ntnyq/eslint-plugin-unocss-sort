@@ -65,7 +65,7 @@ export const ruleOrder: Rule.RuleModule = {
     docs: {
       description:
         'Enforce a deterministic, configurable order for UnoCSS utilities',
-      url: 'https://github.com/ntnyq/eslint-plugin-unocss-sort#order',
+      url: 'https://github.com/ntnyq/eslint-plugin-unocss-sort/blob/main/docs/rules/order.md',
     },
     fixable: 'code',
     messages: {
