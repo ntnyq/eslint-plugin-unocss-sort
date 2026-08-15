@@ -1,0 +1,4 @@
+minimumReleaseAge: 0
+ignoreWorkspaceRootCheck: true
+packageManagerStrict: false
+shellEmulator: true

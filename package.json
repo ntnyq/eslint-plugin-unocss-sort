@@ -1,0 +1,74 @@
+{
+  "name": "eslint-plugin-unocss-sort",
+  "version": "0.0.0",
+  "description": "__TODO__",
+  "keywords": [],
+  "homepage": "https://github.com/ntnyq/eslint-plugin-unocss-sort#readme",
+  "bugs": {
+    "url": "https://github.com/ntnyq/eslint-plugin-unocss-sort/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "ntnyq",
+    "email": "ntnyq13@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ntnyq/eslint-plugin-unocss-sort.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
+    "lint": "oxlint",
+    "prepare": "husky",
+    "prepublishOnly": "pnpm run build",
+    "release": "run-s release:check release:version",
+    "release:check": "run-s format:check lint typecheck test",
+    "release:version": "bumpp",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@ntnyq/tsconfig": "^3.1.0",
+    "@types/node": "^26.2.0",
+    "bumpp": "^12.2.1",
+    "eslint": "^10.8.1",
+    "eslint-plugin-eslint-plugin": "^7.6.1",
+    "eslint-vitest-rule-tester": "^3.1.0",
+    "husky": "^9.1.7",
+    "nano-staged": "^1.0.2",
+    "npm-run-all2": "^9.0.3",
+    "oxfmt": "^0.63.0",
+    "oxlint": "^1.78.0",
+    "tsdown": "^0.22.14",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  },
+  "nano-staged": {
+    "*.{js,ts,mjs,tsx}": "oxlint --fix --no-error-on-unmatched-pattern",
+    "*": "oxfmt --no-error-on-unmatched-pattern"
+  },
+  "packageManager": "pnpm@11.21.0",
+  "dependencies": {
+    "@ntnyq/utils": "^0.21.1"
+  }
+}
