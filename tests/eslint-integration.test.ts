@@ -13,6 +13,10 @@ const unoConfigPath = fileURLToPath(
   new URL('fixtures/uno.config.ts', import.meta.url),
 )
 
+function normalizeLineEndings(value: string | undefined): string | undefined {
+  return value?.replaceAll('\r\n', '\n')
+}
+
 function createESLint(fix: boolean): ESLint {
   return new ESLint({
     cwd: fixtureDirectory,
@@ -104,7 +108,9 @@ describe('ESLint integration', () => {
       ),
     )
 
-    expect(results.map(result => result.output)).toStrictEqual([
+    expect(
+      results.map(result => normalizeLineEndings(result.output)),
+    ).toStrictEqual([
       `export const clsRoot = 'flex p-4 text-white'
 export const view = clsx(
   'p-2 bg-red',
@@ -155,7 +161,7 @@ export const view = clsx(
     const [result] = await eslint.lintFiles(['configured.js'])
 
     expect(result?.messages).toStrictEqual([])
-    expect(result?.output).toBe(
+    expect(normalizeLineEndings(result?.output)).toBe(
       "export const clsButton = 'flex text-white btn'\n",
     )
   })
