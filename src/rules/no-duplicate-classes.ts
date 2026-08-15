@@ -1,9 +1,9 @@
 import type { Rule } from 'eslint'
-import { removeDuplicateClasses } from '../duplicates'
-import { noDuplicateClassesOptionsSchema } from '../schema'
-import { resolveTargets } from '../targets'
-import type { NoDuplicateClassesOptions } from '../types'
-import { createClassListVisitors } from '../visitors'
+import { createClassListVisitors } from '../eslint/class-list-visitors'
+import { noDuplicateClassesOptionsSchema } from '../eslint/schemas'
+import { resolveTargets } from '../eslint/targets'
+import type { NoDuplicateClassesOptions } from '../eslint/types'
+import { removeDuplicateClasses } from '../features/duplicate-classes'
 
 /**
  * ESLint rule that removes duplicate utilities from static class lists

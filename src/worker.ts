@@ -14,7 +14,7 @@ import { loadConfig } from '@unocss/config'
 import { createGenerator } from '@unocss/core'
 import type { Shortcut, UnoGenerator } from '@unocss/core'
 import { runAsWorker } from 'synckit'
-import type { UtilityAnalysis } from './types'
+import type { UtilityAnalysis } from './uno/types'
 
 /**
  * Cached UnoCSS generator and the source state used to validate it

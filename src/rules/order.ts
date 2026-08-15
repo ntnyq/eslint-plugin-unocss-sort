@@ -1,12 +1,16 @@
 import { isEmptyStringOrWhitespace, isTruthy } from '@ntnyq/utils'
 import type { Rule } from 'eslint'
-import { getClassTokens, requiresUnoAnalysis, sortClassList } from '../core'
-import { analyzeUnoTokens } from '../engine'
-import { orderOptionsSchema } from '../schema'
-import { getSettings } from '../settings'
-import { resolveTargets } from '../targets'
-import type { OrderOptions } from '../types'
-import { createClassListVisitors } from '../visitors'
+import { createClassListVisitors } from '../eslint/class-list-visitors'
+import { orderOptionsSchema } from '../eslint/schemas'
+import { getSettings } from '../eslint/settings'
+import { resolveTargets } from '../eslint/targets'
+import type { OrderOptions } from '../eslint/types'
+import {
+  getClassTokens,
+  requiresUnoAnalysis,
+  sortClassList,
+} from '../features/sort/class-list'
+import { analyzeUnoTokens } from '../uno/analyze-uno-tokens'
 
 /**
  * ESLint rule that enforces configured UnoCSS utility ordering

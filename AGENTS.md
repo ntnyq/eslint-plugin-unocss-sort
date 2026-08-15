@@ -3,12 +3,17 @@
 ## Project Structure & Module Organization
 
 Production code lives in `src/`. `index.ts` defines the public package surface,
-`plugin.ts` and `rules.ts` expose the ESLint plugin, and `ast.ts`, `core.ts`,
-`engine.ts`, and `utils.ts` contain parsing and sorting behavior. `worker.ts` is
-the secondary build entry used for synchronous UnoCSS configuration analysis.
-Tests live in `tests/` and generally mirror source modules, while
-`tests/fixtures/` contains UnoCSS configs and JS, JSX, and Vue integration
-samples. Generated output belongs in `dist/` and must not be committed.
+while `plugin.ts` and `meta.ts` expose the ESLint plugin metadata. Rule modules
+live in `src/rules/`. Reusable class-list features live in `src/features/`, with
+sorting behavior grouped in `src/features/sort/`. ESLint AST traversal,
+targets, settings, and schemas live in `src/eslint/`, and the synchronous UnoCSS
+bridge and analysis types live in `src/uno/`.
+`src/worker.ts` remains the secondary build entry used for UnoCSS configuration
+analysis. Tests mirror these domains under `tests/rules/`,
+`tests/sort/`, `tests/eslint/`, and `tests/uno/`. Package-level integration and
+smoke tests stay at the root of `tests/`, while `tests/fixtures/` contains
+UnoCSS configs and JS, JSX, and Vue integration samples. Generated output
+belongs in `dist/` and must not be committed.
 
 ## Build, Test, and Development Commands
 

@@ -67,12 +67,6 @@
   },
   "overrides": [
     {
-      "files": ["src/core.ts", "src/rules.ts"],
-      "rules": {
-        "max-lines": "off",
-      },
-    },
-    {
       "files": ["scripts/**/*.{js,ts}"],
       "rules": {
         "no-console": "off",
