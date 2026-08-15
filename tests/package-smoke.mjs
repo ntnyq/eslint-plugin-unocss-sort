@@ -4,14 +4,15 @@ import { fileURLToPath } from 'node:url'
 import { ESLint as ESLint10 } from 'eslint'
 import { ESLint as ESLint9 } from 'eslint9'
 import unocssSort, {
-  defaultOrderOptions,
+  DEFAULT_SORT_OPTIONS,
   plugin,
   sortClassList,
 } from '../dist/index.mjs'
 
 assert.equal(unocssSort, plugin)
 assert.equal(typeof plugin.rules?.['order']?.create, 'function')
-assert.equal(defaultOrderOptions.type, 'semantic')
+assert.equal(typeof plugin.rules?.['no-duplicate-classes']?.create, 'function')
+assert.equal(DEFAULT_SORT_OPTIONS.type, 'semantic')
 assert.equal(sortClassList('text-white flex p-2'), 'flex p-2 text-white')
 
 const configPath = fileURLToPath(

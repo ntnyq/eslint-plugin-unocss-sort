@@ -1,4 +1,4 @@
-export { defaultOrderOptions } from './constants'
+export { DEFAULT_SORT_OPTIONS, DEFAULT_TARGETS } from './constants'
 export { getClassTokens, sortClassList } from './core'
 export * from './meta'
 export * from './plugin'

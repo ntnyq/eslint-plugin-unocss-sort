@@ -7,7 +7,7 @@
 
 Deterministic, configurable UnoCSS utility sorting for ESLint.
 
-Unlike sorter implementations that expose UnoCSS's internal rule index as the formatting protocol, the default `semantic` mode uses stable, versioned groups. UnoCSS can still analyze project rules and shortcuts when a config path is provided.
+Unlike sorter implementations that expose UnoCSS's internal rule index as the formatting protocol, the default `semantic` mode uses stable semantic groups. UnoCSS can still analyze project rules and shortcuts when a config path is provided.
 
 ## Install
 
@@ -17,7 +17,7 @@ pnpm add -D eslint eslint-plugin-unocss-sort
 
 ## Configure
 
-The plugin exposes one rule and intentionally ships no preset configs. Configure it directly:
+The plugin exposes focused ordering and duplicate-class rules and intentionally ships no preset configs. Configure them directly:
 
 ```ts
 import unocssSort from 'eslint-plugin-unocss-sort'
@@ -28,6 +28,7 @@ export default [
       'unocss-sort': unocssSort,
     },
     rules: {
+      'unocss-sort/no-duplicate-classes': 'warn',
       'unocss-sort/order': [
         'warn',
         {
@@ -75,27 +76,58 @@ Built-in attribute and property targets include:
 
 Kebab-case and camelCase forms are both recognized. The same names are supported in Vue templates, JSX, and JavaScript object properties.
 
-Add project-specific attributes with `unoAttributes`:
+## Target selectors
+
+The default targets cover built-in class attributes, `clsx` and `classnames`
+calls, and variables matching `^cls` or `classNames?$`. Add or replace source
+locations with the unified `targets` selectors:
 
 ```ts
+import { DEFAULT_TARGETS } from 'eslint-plugin-unocss-sort'
+
 {
-  unoAttributes: [
-    '^ui-class$',
-    { pattern: 'Class$', flags: 'i' },
+  targets: [
+    ...DEFAULT_TARGETS,
+    {
+      kind: 'attribute',
+      name: '^ui-class$',
+      match: ['strings', { type: 'object-keys' }],
+    },
+    {
+      kind: 'callee',
+      name: '^(?:cva|tv)$',
+      arguments: 'all',
+      match: [
+        'strings',
+        {
+          type: 'object-values',
+          path: '^(?:variants\\..+|compoundVariants\\[\\d+\\]\\.(?:class|className))$',
+        },
+      ],
+    },
+    { kind: 'tag', name: '^tw$' },
+    {
+      kind: 'variable',
+      name: '^styles$',
+      match: ['strings', { type: 'object-values' }],
+    },
   ],
 }
 ```
 
-`unoAttributes` extends the built-in targets. `unoFunctions` and `unoVariables` replace their defaults:
+`targets` replaces the defaults. Spread `DEFAULT_TARGETS` when extending them.
+Every selector uses a string or `{ pattern, flags }` regular expression.
+Attribute names are also matched in normalized kebab case, so `uiClass` matches
+`^ui-class$`.
 
-```ts
-{
-  unoFunctions: ['clsx', 'classnames', 'cn'],
-  unoVariables: ['^cls', 'classNames?$', '^styles$'],
-}
-```
+- `kind: 'attribute'` covers Vue, JSX, and JavaScript object properties.
+- `kind: 'callee'` supports dotted member names and `arguments: 'all' | 'first' | 'last' | number`. Negative indexes count from the end.
+- `kind: 'tag'` covers tagged template literals, including member tags.
+- `kind: 'variable'` covers variable initializers.
+- `match` defaults to `['strings']`. Object matchers can collect keys or values and optionally restrict them with a static object `path` pattern.
 
-Member calls are supported, so adding `cn` also matches `styles.cn(...)`.
+Positive object paths are preferred to broad traversal plus ignored-key lists,
+because they keep autofixes limited to known class-bearing fields.
 
 ## Perfectionist-style options
 
@@ -163,6 +195,7 @@ The main configuration layers are utility groups, group-local comparators, varia
   unknown: 'preserve-position',
   shortcuts: 'expanded',
   partitionByNewLine: true,
+  whitespace: 'preserve',
 }
 ```
 
@@ -174,6 +207,11 @@ Available sort types are `semantic`, `uno`, `natural`, `alphabetical`, `code-poi
 - Every comparator falls back to deterministic code-point order and then original position.
 
 `unknown: 'preserve-position'` treats an unknown class as a pinned node, so recognized utilities do not unexpectedly cross project component classes.
+
+`whitespace: 'preserve'` is the default and retains the whitespace slots between
+tokens while changing their order. Use `whitespace: 'collapse'` to rebuild each
+sorted partition with single spaces. `partitionByNewLine` independently controls
+whether utilities may move across line boundaries.
 
 ## UnoCSS config analysis
 
@@ -191,7 +229,35 @@ Provide the same setting used by the official UnoCSS ESLint integration:
 
 With a config path, the rule analyzes all generated outputs for recognized utilities, shortcuts, CSS properties, layers, and native order metadata. The analyzer runs in a synchronous worker suitable for ESLint and reloads when config source mtimes change.
 
+The `analysis` option controls when that worker is used:
+
+- `auto` (default) analyzes when `configPath` is set or an explicitly configured option requires UnoCSS metadata.
+- `always` analyzes every discovered class list and requires a discoverable config.
+- `never` guarantees pure semantic sorting without loading UnoCSS. Combining it with metadata-dependent options is a configuration error.
+
 `type: 'uno'` requires a discoverable UnoCSS config. Default `semantic` sorting works without one.
+
+## Duplicate classes
+
+Enable `unocss-sort/no-duplicate-classes` to report and fix exact duplicate
+tokens inside the same static string or template segment. The rule uses the same
+default targets and accepts the same `targets` option:
+
+```ts
+{
+  rules: {
+    'unocss-sort/no-duplicate-classes': 'warn',
+  },
+}
+```
+
+It does not infer duplicates across template interpolations, conditional
+branches, or separate function arguments.
+
+## Roadmap
+
+See [docs/roadmap.md](./docs/roadmap.md) for prioritized work that is intentionally
+outside the current release scope.
 
 ## License
 

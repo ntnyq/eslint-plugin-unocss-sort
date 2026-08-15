@@ -1,13 +1,9 @@
 import { isString } from '@ntnyq/utils'
-import {
-  builtinUnoAttributes,
-  defaultOrderOptions,
-  defaultVariantGroups,
-} from './constants'
+import { DEFAULT_SORT_OPTIONS, DEFAULT_VARIANT_GROUPS } from './constants'
 import type {
-  OrderOptions,
   RegexOption,
-  ResolvedOrderOptions,
+  ResolvedSortOptions,
+  SortOptions,
   SpecialCharacters,
 } from './types'
 
@@ -59,74 +55,49 @@ export function normalizeAttributeName(name: string): string {
 }
 
 /**
- * Check whether an attribute contains UnoCSS utilities
- *
- * @param name Attribute name
- * @param customAttributes Additional attribute patterns
- * @returns Whether the attribute can contain UnoCSS utilities
- */
-export function isUnoAttribute(
-  name: string,
-  customAttributes: RegexOption[],
-): boolean {
-  const normalizedName = normalizeAttributeName(name)
-
-  return (
-    builtinUnoAttributes.includes(
-      normalizedName as (typeof builtinUnoAttributes)[number],
-    ) ||
-    customAttributes.some(
-      pattern =>
-        matchesRegexOption(name, pattern) ||
-        matchesRegexOption(normalizedName, pattern),
-    )
-  )
-}
-
-/**
  * Merge user options with the built-in ordering defaults
  *
  * @param options User-facing ordering options
  * @returns Fully resolved ordering options
  */
-export function resolveOrderOptions(
-  options: OrderOptions = {},
-): ResolvedOrderOptions {
+export function resolveSortOptions(
+  options: SortOptions = {},
+): ResolvedSortOptions {
   return {
-    alphabet: options.alphabet ?? defaultOrderOptions.alphabet,
-    customGroups: options.customGroups ?? [...defaultOrderOptions.customGroups],
+    alphabet: options.alphabet ?? DEFAULT_SORT_OPTIONS.alphabet,
+    customGroups: options.customGroups ?? [
+      ...DEFAULT_SORT_OPTIONS.customGroups,
+    ],
     fallbackSort: {
-      ...defaultOrderOptions.fallbackSort,
+      ...DEFAULT_SORT_OPTIONS.fallbackSort,
       ...options.fallbackSort,
     },
-    groups: options.groups ?? [...defaultOrderOptions.groups],
-    ignoreCase: options.ignoreCase ?? defaultOrderOptions.ignoreCase,
-    locales: options.locales ?? defaultOrderOptions.locales,
-    order: options.order ?? defaultOrderOptions.order,
+    groups: options.groups ?? [...DEFAULT_SORT_OPTIONS.groups],
+    ignoreCase: options.ignoreCase ?? DEFAULT_SORT_OPTIONS.ignoreCase,
+    locales: options.locales ?? DEFAULT_SORT_OPTIONS.locales,
+    order: options.order ?? DEFAULT_SORT_OPTIONS.order,
     partitionByNewLine:
-      options.partitionByNewLine ?? defaultOrderOptions.partitionByNewLine,
-    shortcuts: options.shortcuts ?? defaultOrderOptions.shortcuts,
+      options.partitionByNewLine ?? DEFAULT_SORT_OPTIONS.partitionByNewLine,
+    shortcuts: options.shortcuts ?? DEFAULT_SORT_OPTIONS.shortcuts,
     specialCharacters:
-      options.specialCharacters ?? defaultOrderOptions.specialCharacters,
-    type: options.type ?? defaultOrderOptions.type,
-    unknown: options.unknown ?? defaultOrderOptions.unknown,
-    unoAttributes: options.unoAttributes ?? [],
-    unoFunctions: options.unoFunctions ?? [...defaultOrderOptions.unoFunctions],
-    unoVariables: options.unoVariables ?? [...defaultOrderOptions.unoVariables],
+      options.specialCharacters ?? DEFAULT_SORT_OPTIONS.specialCharacters,
+    type: options.type ?? DEFAULT_SORT_OPTIONS.type,
+    unknown: options.unknown ?? DEFAULT_SORT_OPTIONS.unknown,
     variants: {
       compoundOrder:
         options.variants?.compoundOrder ??
-        defaultOrderOptions.variants.compoundOrder,
+        DEFAULT_SORT_OPTIONS.variants.compoundOrder,
       customGroups: options.variants?.customGroups ?? [
-        ...defaultOrderOptions.variants.customGroups,
+        ...DEFAULT_SORT_OPTIONS.variants.customGroups,
       ],
-      groups: options.variants?.groups ?? [...defaultVariantGroups],
+      groups: options.variants?.groups ?? [...DEFAULT_VARIANT_GROUPS],
       placement:
-        options.variants?.placement ?? defaultOrderOptions.variants.placement,
+        options.variants?.placement ?? DEFAULT_SORT_OPTIONS.variants.placement,
       responsiveOrder:
         options.variants?.responsiveOrder ??
-        defaultOrderOptions.variants.responsiveOrder,
+        DEFAULT_SORT_OPTIONS.variants.responsiveOrder,
     },
+    whitespace: options.whitespace ?? DEFAULT_SORT_OPTIONS.whitespace,
   }
 }
 

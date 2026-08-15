@@ -1,7 +1,21 @@
 import { run, unindent } from 'eslint-vitest-rule-tester'
 import vueParser from 'vue-eslint-parser'
-import type { OrderOptions } from '../src'
+import { DEFAULT_TARGETS } from '../src'
+import type { OrderOptions, TargetSelector } from '../src'
 import { ruleOrder } from '../src/rules'
+
+const cxTarget = {
+  arguments: 'all',
+  kind: 'callee',
+  match: ['strings', { type: 'object-keys' }],
+  name: '(?:^|\\.)cx$',
+} satisfies TargetSelector
+
+const uiClassTarget = {
+  kind: 'attribute',
+  match: ['strings', { type: 'object-keys' }],
+  name: '^ui-class$',
+} satisfies TargetSelector
 
 run<OrderOptions[], 'invalidOrder'>({
   name: 'order',
@@ -69,7 +83,7 @@ run<OrderOptions[], 'invalidOrder'>({
       code: '<template><Widget ui-class="text-white flex" /></template>',
       errors: ['invalidOrder'],
       filename: 'Custom.vue',
-      options: [{ unoAttributes: ['^ui-class$'] }],
+      options: [{ targets: [uiClassTarget] }],
       output: '<template><Widget ui-class="flex text-white" /></template>',
     },
     {
@@ -86,7 +100,7 @@ run<OrderOptions[], 'invalidOrder'>({
         'invalidOrder',
         'invalidOrder',
       ],
-      options: [{ unoFunctions: ['cx'] }],
+      options: [{ targets: [...DEFAULT_TARGETS, cxTarget] }],
       output: unindent`
         const clsButton = 'flex text-white'
         const classNames = { root: 'p-2 bg-red' }
@@ -105,7 +119,7 @@ run<OrderOptions[], 'invalidOrder'>({
       `,
       errors: ['invalidOrder', 'invalidOrder', 'invalidOrder'],
       filename: 'Component.jsx',
-      options: [{ unoAttributes: ['^uiClass$'] }],
+      options: [{ targets: [...DEFAULT_TARGETS, uiClassTarget] }],
       output: unindent`
         const view = (
           <div
@@ -124,7 +138,18 @@ run<OrderOptions[], 'invalidOrder'>({
         )
       `,
       errors: ['invalidOrder', 'invalidOrder', 'invalidOrder', 'invalidOrder'],
-      options: [{ unoFunctions: ['cx'], unoVariables: ['^clsRoot$'] }],
+      options: [
+        {
+          targets: [
+            cxTarget,
+            {
+              kind: 'variable',
+              match: ['strings', { type: 'object-values' }],
+              name: '^clsRoot$',
+            },
+          ],
+        },
+      ],
       output: unindent`
         const clsRoot = tw\`flex text-white \${active} p-2 bg-red\`
         const value = cx(
@@ -156,10 +181,65 @@ run<OrderOptions[], 'invalidOrder'>({
         const props = { ['class']: 'bg-red p-2' }
       `,
       errors: ['invalidOrder', 'invalidOrder'],
-      options: [{ unoFunctions: ['cx'] }],
+      options: [{ targets: [...DEFAULT_TARGETS, cxTarget] }],
       output: unindent`
         const value = styles['cx']('flex text-white')
         const props = { ['class']: 'p-2 bg-red' }
+      `,
+    },
+    {
+      code: unindent`
+        const tagged = tw\`text-white flex \${active} bg-red p-2\`
+        const untouched = css\`text-white flex\`
+      `,
+      errors: ['invalidOrder', 'invalidOrder'],
+      options: [{ targets: [{ kind: 'tag', name: '^tw$' }] }],
+      output: unindent`
+        const tagged = tw\`flex text-white \${active} p-2 bg-red\`
+        const untouched = css\`text-white flex\`
+      `,
+    },
+    {
+      code: "const value = cva('text-white flex', 'bg-red p-2')",
+      errors: ['invalidOrder'],
+      options: [
+        {
+          targets: [{ arguments: 'last', kind: 'callee', name: '^cva$' }],
+        },
+      ],
+      output: "const value = cva('text-white flex', 'p-2 bg-red')",
+    },
+    {
+      code: unindent`
+        const value = cva({
+          variants: { size: { sm: 'text-white flex' } },
+          defaultVariants: { size: 'text-white flex' },
+          compoundVariants: [{ class: 'bg-red p-2' }],
+        })
+      `,
+      errors: ['invalidOrder', 'invalidOrder'],
+      options: [
+        {
+          targets: [
+            {
+              kind: 'callee',
+              match: [
+                {
+                  path: '^(?:variants\\..+|compoundVariants\\[\\d+\\]\\.class)$',
+                  type: 'object-values',
+                },
+              ],
+              name: '^cva$',
+            },
+          ],
+        },
+      ],
+      output: unindent`
+        const value = cva({
+          variants: { size: { sm: 'flex text-white' } },
+          defaultVariants: { size: 'text-white flex' },
+          compoundVariants: [{ class: 'p-2 bg-red' }],
+        })
       `,
     },
   ],
@@ -173,7 +253,18 @@ run<OrderOptions[], 'invalidOrder'>({
         const styles = 'text-white flex'
         const value = clsx('bg-red p-2')
       `,
-      options: [{ unoFunctions: ['cx'], unoVariables: ['^tokens$'] }],
+      options: [
+        {
+          targets: [
+            { kind: 'callee', name: '^cx$' },
+            {
+              kind: 'variable',
+              match: ['strings', { type: 'object-values' }],
+              name: '^tokens$',
+            },
+          ],
+        },
+      ],
     },
     {
       code: '<div data-class="text-white flex" />',

@@ -29,6 +29,7 @@ export interface AstNode {
   quasis?: unknown
   range?: [number, number]
   right?: unknown
+  tag?: unknown
   type: string
   value?: unknown
 }

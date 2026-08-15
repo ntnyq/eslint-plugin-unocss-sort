@@ -46,8 +46,12 @@ describe('order option schema', () => {
       reason: 'incomplete custom variant group',
     },
     {
-      options: { unoAttributes: [{ flags: 'i' }] },
+      options: { targets: [{ kind: 'attribute', name: { flags: 'i' } }] },
       reason: 'regex descriptor without a pattern',
+    },
+    {
+      options: { targets: [{ kind: 'callee', name: '^cx$', path: '^cx$' }] },
+      reason: 'unknown target property',
     },
   ])('rejects $reason', async ({ options }) => {
     await expect(lintWithOptions(options)).rejects.toThrow(/.+/u)
@@ -55,13 +59,11 @@ describe('order option schema', () => {
 
   it('accepts a complete configuration using every option family', async () => {
     const [result] = await lintWithOptions({
+      analysis: 'never',
       alphabet: 'zyx',
       customGroups: [
         {
-          anyOf: [
-            { classNamePattern: '^brand-' },
-            { cssPropertyPattern: '^color$' },
-          ],
+          anyOf: [{ classNamePattern: '^brand-' }, { arbitrary: true }],
           fallbackSort: { order: 'desc', type: 'natural' },
           groupName: 'brand',
           order: 'asc',
@@ -77,13 +79,20 @@ describe('order option schema', () => {
       locales: ['en-US'],
       order: 'asc',
       partitionByNewLine: false,
-      shortcuts: 'group',
+      shortcuts: 'expanded',
       specialCharacters: 'remove',
+      targets: [
+        {
+          kind: 'attribute',
+          match: ['strings', { path: '^root$', type: 'object-values' }],
+          name: { flags: 'i', pattern: '^ui-class$' },
+        },
+        { arguments: -1, kind: 'callee', name: '^cx$' },
+        { kind: 'tag', name: '^tw$' },
+        { kind: 'variable', name: '^styles$' },
+      ],
       type: 'semantic',
       unknown: 'group',
-      unoAttributes: [{ flags: 'i', pattern: '^ui-class$' }],
-      unoFunctions: ['cx'],
-      unoVariables: ['^styles$'],
       variants: {
         compoundOrder: 'inner-first',
         customGroups: [{ groupName: 'hocus', variantNamePattern: '^hocus$' }],
@@ -91,6 +100,7 @@ describe('order option schema', () => {
         placement: 'attached',
         responsiveOrder: 'natural',
       },
+      whitespace: 'collapse',
     })
 
     expect(result?.fatalErrorCount).toBe(0)

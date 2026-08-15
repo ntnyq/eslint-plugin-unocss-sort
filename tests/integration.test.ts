@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { ESLint } from 'eslint'
 import { describe, expect, it } from 'vitest'
 import vueParser from 'vue-eslint-parser'
-import { plugin } from '../src'
+import { DEFAULT_TARGETS, plugin } from '../src'
 
 const fixtureDirectory = fileURLToPath(
   new URL('fixtures/integration', import.meta.url),
@@ -34,7 +34,15 @@ function createESLint(fix: boolean): ESLint {
         },
         plugins: { 'unocss-sort': plugin },
         rules: {
-          'unocss-sort/order': ['error', { unoAttributes: ['^data-ui$'] }],
+          'unocss-sort/order': [
+            'error',
+            {
+              targets: [
+                ...DEFAULT_TARGETS,
+                { kind: 'attribute', name: '^data-ui$' },
+              ],
+            },
+          ],
         },
       },
       {
@@ -150,5 +158,65 @@ export const view = clsx(
     expect(result?.output).toBe(
       "export const clsButton = 'flex text-white btn'\n",
     )
+  })
+
+  it('can disable analysis even when a config path is present', async () => {
+    const eslint = new ESLint({
+      fix: true,
+      overrideConfig: {
+        plugins: { 'unocss-sort': plugin },
+        rules: {
+          'unocss-sort/order': ['error', { analysis: 'never' }],
+        },
+        settings: {
+          unocss: { configPath: '/missing/uno.config.ts' },
+        },
+      },
+      overrideConfigFile: true,
+    })
+
+    const [result] = await eslint.lintText(
+      "export const clsRoot = 'text-white flex'",
+      { filePath: 'analysis-never.js' },
+    )
+
+    expect(result?.output).toBe("export const clsRoot = 'flex text-white'")
+  })
+
+  it('rejects analysis-dependent options when analysis is disabled', async () => {
+    const eslint = new ESLint({
+      overrideConfig: {
+        plugins: { 'unocss-sort': plugin },
+        rules: {
+          'unocss-sort/order': ['error', { analysis: 'never', type: 'uno' }],
+        },
+      },
+      overrideConfigFile: true,
+    })
+
+    await expect(
+      eslint.lintText("export const clsRoot = 'p-2 flex'"),
+    ).rejects.toThrow(
+      'cannot be used with options that require UnoCSS metadata',
+    )
+  })
+
+  it('requires a config when analysis is always enabled', async () => {
+    const eslint = new ESLint({
+      overrideConfig: {
+        plugins: { 'unocss-sort': plugin },
+        rules: {
+          'unocss-sort/order': ['error', { analysis: 'always' }],
+        },
+        settings: {
+          unocss: { configPath: '/missing/uno.config.ts' },
+        },
+      },
+      overrideConfigFile: true,
+    })
+
+    await expect(
+      eslint.lintText("export const clsRoot = 'p-2 flex'"),
+    ).rejects.toThrow('Custom config file not found')
   })
 })

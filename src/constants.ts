@@ -1,9 +1,9 @@
-import type { OrderOptions } from './types'
+import type { SortOptions, TargetSelector } from './types'
 
 /**
  * Built-in attributes that can contain UnoCSS utilities
  */
-export const builtinUnoAttributes = [
+export const BUILTIN_UNO_ATTRIBUTES = [
   'class',
   'class-name',
   'enter-class',
@@ -24,7 +24,7 @@ export const builtinUnoAttributes = [
 /**
  * Default semantic order for utility groups
  */
-export const defaultGroups = [
+export const DEFAULT_GROUPS = [
   'layout',
   'position',
   'display',
@@ -42,12 +42,12 @@ export const defaultGroups = [
   'shortcut',
   'known',
   'unknown',
-] satisfies NonNullable<OrderOptions['groups']>
+] satisfies NonNullable<SortOptions['groups']>
 
 /**
  * Default order for UnoCSS variant groups
  */
-export const defaultVariantGroups = [
+export const DEFAULT_VARIANT_GROUPS = [
   'base',
   'theme',
   'responsive',
@@ -58,12 +58,39 @@ export const defaultVariantGroups = [
   'at-rule',
   'arbitrary',
   'unknown',
-] satisfies NonNullable<NonNullable<OrderOptions['variants']>['groups']>
+] satisfies NonNullable<NonNullable<SortOptions['variants']>['groups']>
+
+/**
+ * Default source locations that can contain UnoCSS utilities
+ */
+export const DEFAULT_TARGETS = [
+  {
+    kind: 'attribute',
+    match: ['strings', { type: 'object-keys' }],
+    name: `^(?:${BUILTIN_UNO_ATTRIBUTES.join('|')})$`,
+  },
+  {
+    arguments: 'all',
+    kind: 'callee',
+    match: ['strings', { type: 'object-keys' }],
+    name: { flags: 'i', pattern: '(?:^|\\.)(?:clsx|classnames)$' },
+  },
+  {
+    kind: 'variable',
+    match: ['strings', { type: 'object-values' }],
+    name: { flags: 'i', pattern: '^cls' },
+  },
+  {
+    kind: 'variable',
+    match: ['strings', { type: 'object-values' }],
+    name: { flags: 'i', pattern: 'classNames?$' },
+  },
+] satisfies TargetSelector[]
 
 /**
  * Complete default options used by the ordering rule
  */
-export const defaultOrderOptions = {
+export const DEFAULT_SORT_OPTIONS = {
   alphabet: '',
   customGroups: [
     {
@@ -79,7 +106,7 @@ export const defaultOrderOptions = {
     order: 'asc',
     type: 'code-point',
   },
-  groups: defaultGroups,
+  groups: DEFAULT_GROUPS,
   ignoreCase: false,
   locales: 'en-US',
   order: 'asc',
@@ -88,9 +115,6 @@ export const defaultOrderOptions = {
   specialCharacters: 'keep',
   type: 'semantic',
   unknown: 'preserve-position',
-  unoAttributes: [],
-  unoFunctions: ['clsx', 'classnames'],
-  unoVariables: ['^cls', 'classNames?$'],
   variants: {
     compoundOrder: 'outer-first',
     customGroups: [
@@ -104,16 +128,17 @@ export const defaultOrderOptions = {
           '^(hover|focus|focus-visible|active|visited|checked|disabled)$',
       },
     ],
-    groups: defaultVariantGroups,
+    groups: DEFAULT_VARIANT_GROUPS,
     placement: 'grouped',
     responsiveOrder: 'theme',
   },
-} satisfies OrderOptions
+  whitespace: 'preserve',
+} satisfies SortOptions
 
 /**
  * Semantic utility patterns used when UnoCSS analysis is unavailable
  */
-export const semanticPatterns: readonly {
+export const SEMANTIC_PATTERNS: readonly {
   group: string
   pattern: RegExp
   property: string
@@ -231,4 +256,6 @@ export const semanticPatterns: readonly {
 /**
  * Built-in responsive variants ordered from smallest to largest
  */
-export const responsiveVariants = ['sm', 'md', 'lg', 'xl', '2xl'] as const
+export const RESPONSIVE_VARIANTS = ['sm', 'md', 'lg', 'xl', '2xl'] as const
+
+export type TResponsiveVariant = (typeof RESPONSIVE_VARIANTS)[number]

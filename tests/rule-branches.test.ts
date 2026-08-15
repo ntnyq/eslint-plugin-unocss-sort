@@ -1,3 +1,4 @@
+import { isFunction } from '@ntnyq/utils'
 import type { Rule } from 'eslint'
 import { describe, expect, it } from 'vitest'
 import type { AstNode } from '../src/ast'
@@ -47,7 +48,7 @@ function callListener(
   node: AstNode,
 ): void {
   const callback = listener[selector]
-  if (typeof callback !== 'function') {
+  if (!isFunction(callback)) {
     throw new TypeError(`Missing ${String(selector)} listener`)
   }
   // oxlint-disable-next-line promise/prefer-await-to-callbacks

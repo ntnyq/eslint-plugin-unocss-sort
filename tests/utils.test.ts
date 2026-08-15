@@ -1,12 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { defaultOrderOptions } from '../src'
+import { DEFAULT_SORT_OPTIONS } from '../src'
 import {
   compareCodePoints,
-  isUnoAttribute,
   matchesRegexOption,
   normalizeAttributeName,
   normalizeForComparison,
-  resolveOrderOptions,
+  resolveSortOptions,
   toRegExp,
 } from '../src/utils'
 
@@ -31,7 +30,7 @@ describe('regular expression options', () => {
   })
 })
 
-describe('UnoCSS attributes', () => {
+describe('attribute normalization', () => {
   it.each([
     ['appearActiveClass', 'appear-active-class'],
     ['CLASS_NAME', 'class-name'],
@@ -39,28 +38,18 @@ describe('UnoCSS attributes', () => {
   ])('normalizes %s to %s', (input, expected) => {
     expect(normalizeAttributeName(input)).toBe(expected)
   })
-
-  it('matches built-ins, original custom names, and normalized names', () => {
-    expect(isUnoAttribute('className', [])).toBe(true)
-    expect(isUnoAttribute('uiClass', ['^uiClass$'])).toBe(true)
-    expect(isUnoAttribute('uiClass', ['^ui-class$'])).toBe(true)
-    expect(isUnoAttribute('dataClass', [])).toBe(false)
-  })
 })
 
 describe('option resolution and comparison normalization', () => {
   it('resolves every default option', () => {
-    expect(resolveOrderOptions()).toStrictEqual(defaultOrderOptions)
+    expect(resolveSortOptions()).toStrictEqual(DEFAULT_SORT_OPTIONS)
   })
 
   it('replaces list options and deeply merges partial fallback and variants', () => {
-    const resolved = resolveOrderOptions({
+    const resolved = resolveSortOptions({
       customGroups: [],
       fallbackSort: { order: 'desc', type: 'natural' },
       groups: ['known'],
-      unoAttributes: ['^ui$'],
-      unoFunctions: [],
-      unoVariables: [],
       variants: {
         customGroups: [],
         groups: ['state'],
@@ -72,9 +61,6 @@ describe('option resolution and comparison normalization', () => {
       customGroups: [],
       fallbackSort: { order: 'desc', type: 'natural' },
       groups: ['known'],
-      unoAttributes: ['^ui$'],
-      unoFunctions: [],
-      unoVariables: [],
       variants: {
         compoundOrder: 'outer-first',
         customGroups: [],
@@ -82,6 +68,7 @@ describe('option resolution and comparison normalization', () => {
         placement: 'attached',
         responsiveOrder: 'theme',
       },
+      whitespace: 'preserve',
     })
   })
 

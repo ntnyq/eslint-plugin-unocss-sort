@@ -37,12 +37,77 @@ const sortTypeSchema = {
   ],
 } as const
 
+const targetMatcherSchema = {
+  anyOf: [
+    { const: 'strings' },
+    {
+      additionalProperties: false,
+      properties: {
+        path: regexOptionSchema,
+        type: { enum: ['object-keys', 'object-values'] },
+      },
+      required: ['type'],
+      type: 'object',
+    },
+  ],
+} as const
+
+const targetProperties = {
+  match: { items: targetMatcherSchema, type: 'array' },
+  name: regexOptionSchema,
+} as const
+
+const targetSelectorSchema = {
+  anyOf: [
+    {
+      additionalProperties: false,
+      properties: {
+        ...targetProperties,
+        kind: { const: 'attribute' },
+      },
+      required: ['kind', 'name'],
+      type: 'object',
+    },
+    {
+      additionalProperties: false,
+      properties: {
+        ...targetProperties,
+        arguments: {
+          anyOf: [{ enum: ['all', 'first', 'last'] }, { type: 'integer' }],
+        },
+        kind: { const: 'callee' },
+      },
+      required: ['kind', 'name'],
+      type: 'object',
+    },
+    {
+      additionalProperties: false,
+      properties: {
+        ...targetProperties,
+        kind: { const: 'tag' },
+      },
+      required: ['kind', 'name'],
+      type: 'object',
+    },
+    {
+      additionalProperties: false,
+      properties: {
+        ...targetProperties,
+        kind: { const: 'variable' },
+      },
+      required: ['kind', 'name'],
+      type: 'object',
+    },
+  ],
+} as const
+
 /**
  * JSON schema for the UnoCSS ordering rule options
  */
 export const orderOptionsSchema = {
   additionalProperties: false,
   properties: {
+    analysis: { enum: ['auto', 'always', 'never'] },
     alphabet: { type: 'string' },
     customGroups: {
       items: {
@@ -96,11 +161,9 @@ export const orderOptionsSchema = {
     partitionByNewLine: { type: 'boolean' },
     shortcuts: { enum: ['expanded', 'preserve-position', 'group'] },
     specialCharacters: { enum: ['keep', 'trim', 'remove'] },
+    targets: { items: targetSelectorSchema, type: 'array' },
     type: sortTypeSchema,
     unknown: { enum: ['preserve-position', 'group'] },
-    unoAttributes: { items: regexOptionSchema, type: 'array' },
-    unoFunctions: { items: { type: 'string' }, type: 'array' },
-    unoVariables: { items: regexOptionSchema, type: 'array' },
     variants: {
       additionalProperties: false,
       properties: {
@@ -131,6 +194,18 @@ export const orderOptionsSchema = {
       },
       type: 'object',
     },
+    whitespace: { enum: ['preserve', 'collapse'] },
+  },
+  type: 'object',
+} as const
+
+/**
+ * JSON schema for the duplicate-class rule options
+ */
+export const noDuplicateClassesOptionsSchema = {
+  additionalProperties: false,
+  properties: {
+    targets: { items: targetSelectorSchema, type: 'array' },
   },
   type: 'object',
 } as const

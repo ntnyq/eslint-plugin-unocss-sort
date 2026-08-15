@@ -25,8 +25,18 @@ describe('class-list parsing', () => {
     expect(
       sortClassList('text-white p-2\n  bg-red flex', {
         partitionByNewLine: false,
+        whitespace: 'collapse',
       }),
     ).toBe('flex p-2 text-white bg-red')
+  })
+
+  it('preserves or collapses whitespace independently of token order', () => {
+    const input = 'text-white  flex\tp-2'
+
+    expect(sortClassList(input)).toBe('flex  p-2\ttext-white')
+    expect(sortClassList(input, { whitespace: 'collapse' })).toBe(
+      'flex p-2 text-white',
+    )
   })
 })
 
@@ -45,12 +55,16 @@ describe('UnoCSS analysis requirements', () => {
     ).toBe(true)
   })
 
-  it('does not require analysis for metadata matchers alone', () => {
+  it('requires analysis for metadata matchers and policies', () => {
     expect(
       requiresUnoAnalysis({
         customGroups: [{ cssPropertyPattern: '^color$', groupName: 'color' }],
         type: 'natural',
       }),
-    ).toBe(false)
+    ).toBe(true)
+    expect(requiresUnoAnalysis({ shortcuts: 'group' })).toBe(true)
+    expect(
+      requiresUnoAnalysis({ variants: { responsiveOrder: 'theme' } }),
+    ).toBe(true)
   })
 })

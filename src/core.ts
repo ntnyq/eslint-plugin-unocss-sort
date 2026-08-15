@@ -7,16 +7,17 @@ import {
   toArray,
 } from '@ntnyq/utils'
 import { collapseVariantGroup, parseVariantGroup } from '@unocss/core'
-import { responsiveVariants, semanticPatterns } from './constants'
+import type { TResponsiveVariant } from './constants'
+import { RESPONSIVE_VARIANTS, SEMANTIC_PATTERNS } from './constants'
 import type {
   CustomGroup,
   CustomGroupMatch,
   FallbackSort,
   GroupOption,
   GroupOverride,
-  OrderOptions,
   RegexOption,
-  ResolvedOrderOptions,
+  ResolvedSortOptions,
+  SortOptions,
   SortOrder,
   SortType,
   UtilityAnalysis,
@@ -25,7 +26,7 @@ import {
   compareCodePoints,
   matchesRegexOption,
   normalizeForComparison,
-  resolveOrderOptions,
+  resolveSortOptions,
 } from './utils'
 
 interface GroupDescriptor {
@@ -252,15 +253,15 @@ function getSemanticGroup(base: string): {
   property?: string
   rank: number
 } {
-  const rank = semanticPatterns.findIndex(({ pattern }) => pattern.test(base))
+  const rank = SEMANTIC_PATTERNS.findIndex(({ pattern }) => pattern.test(base))
 
   if (rank === -1) {
-    return { rank: semanticPatterns.length }
+    return { rank: SEMANTIC_PATTERNS.length }
   }
 
-  const matched = semanticPatterns[rank]
+  const matched = SEMANTIC_PATTERNS[rank]
   if (!matched) {
-    return { rank: semanticPatterns.length }
+    return { rank: SEMANTIC_PATTERNS.length }
   }
   return {
     group: matched.group,
@@ -395,7 +396,7 @@ function selectPropertyGroup(
  */
 function classifyVariant(
   variant: string,
-  options: ResolvedOrderOptions,
+  options: ResolvedSortOptions,
   groupRanks: Map<string, number>,
   originalIndex: number,
   breakpoints?: Record<string, number>,
@@ -410,9 +411,7 @@ function classifyVariant(
       group = 'theme'
     } else if (
       variant in (breakpoints ?? {}) ||
-      responsiveVariants.includes(
-        variant as (typeof responsiveVariants)[number],
-      )
+      RESPONSIVE_VARIANTS.includes(variant as TResponsiveVariant)
     ) {
       group = 'responsive'
     } else if (variant.startsWith('@')) {
@@ -442,8 +441,8 @@ function classifyVariant(
     }
   }
 
-  const responsiveIndex = responsiveVariants.indexOf(
-    variant as (typeof responsiveVariants)[number],
+  const responsiveIndex = RESPONSIVE_VARIANTS.indexOf(
+    variant as TResponsiveVariant,
   )
   let responsiveRank =
     breakpoints?.[variant] ??
@@ -498,7 +497,7 @@ function createVariantGroupRanks(
 function createSortingNode(
   raw: string,
   originalIndex: number,
-  options: ResolvedOrderOptions,
+  options: ResolvedSortOptions,
   descriptors: Map<string, GroupDescriptor>,
   variantGroupRanks: Map<string, number>,
   analyses?: AnalysisCollection,
@@ -515,7 +514,7 @@ function createSortingNode(
       analysis,
       arbitrary,
       raw,
-      recognized,
+      recognized: analysis.recognized,
       variants: variantNames,
     }),
   )
@@ -630,7 +629,7 @@ function compareByType(
   left: SortingNode,
   right: SortingNode,
   type: SortType,
-  options: ResolvedOrderOptions,
+  options: ResolvedSortOptions,
 ): number {
   const normalizedLeft = normalizeForComparison(
     left.raw,
@@ -707,7 +706,7 @@ function compareFallback(
   left: SortingNode,
   right: SortingNode,
   fallback: FallbackSort,
-  options: ResolvedOrderOptions,
+  options: ResolvedSortOptions,
 ): number {
   return compareWithOrder(
     compareByType(left, right, fallback.type, options),
@@ -726,7 +725,7 @@ function compareFallback(
 function compareVariants(
   left: SortingNode,
   right: SortingNode,
-  options: ResolvedOrderOptions,
+  options: ResolvedSortOptions,
 ): number {
   const leftVariants =
     options.variants.compoundOrder === 'inner-first'
@@ -800,7 +799,7 @@ function getCustomGroup(
 function compareNodes(
   left: SortingNode,
   right: SortingNode,
-  options: ResolvedOrderOptions,
+  options: ResolvedSortOptions,
   descriptors: Map<string, GroupDescriptor>,
 ): number {
   const variantResult = compareVariants(left, right, options)
@@ -866,7 +865,7 @@ function compareNodes(
  */
 function sortNodes(
   nodes: SortingNode[],
-  options: ResolvedOrderOptions,
+  options: ResolvedSortOptions,
   descriptors: Map<string, GroupDescriptor>,
 ): SortingNode[] {
   const result: SortingNode[] = []
@@ -924,7 +923,7 @@ function expandVariantGroups(input: string): {
  */
 function sortPartition(
   input: string,
-  options: ResolvedOrderOptions,
+  options: ResolvedSortOptions,
   analyses?: AnalysisCollection,
 ): string {
   const leadingWhitespace = input.match(/^\s*/u)?.[0] ?? ''
@@ -960,6 +959,17 @@ function sortPartition(
     sorted = collapseVariantGroup(sorted, expandedResult.prefixes)
   }
 
+  if (options.whitespace === 'preserve') {
+    const whitespace = [...content.matchAll(/\s+/gu)].map(match => match[0])
+    const sortedTokens = filterFalsy(sorted.split(/\s+/u))
+
+    if (whitespace.length === sortedTokens.length - 1) {
+      sorted = sortedTokens
+        .map((token, index) => `${token}${whitespace[index] ?? ''}`)
+        .join('')
+    }
+  }
+
   return `${leadingWhitespace}${sorted}${trailingWhitespace}`
 }
 
@@ -979,7 +989,7 @@ export function getClassTokens(input: string): string[] {
  * @param options User-facing ordering options
  * @returns Whether UnoCSS runtime analysis is required
  */
-export function requiresUnoAnalysis(options: OrderOptions): boolean {
+export function requiresUnoAnalysis(options: SortOptions): boolean {
   if (options.type === 'uno') {
     return true
   }
@@ -989,7 +999,30 @@ export function requiresUnoAnalysis(options: OrderOptions): boolean {
     return true
   }
 
-  return isTruthy(options.customGroups?.some(group => group.type === 'uno'))
+  if (
+    options.shortcuts === 'group' ||
+    options.shortcuts === 'preserve-position' ||
+    options.variants?.responsiveOrder === 'theme'
+  ) {
+    return true
+  }
+
+  return isTruthy(
+    options.customGroups?.some(group => {
+      if (group.type === 'uno') {
+        return true
+      }
+
+      const matches = 'anyOf' in group ? group.anyOf : [group]
+      return matches.some(
+        match =>
+          isTruthy(match.cssPropertyPattern) ||
+          isTruthy(match.layer) ||
+          match.recognized !== undefined ||
+          match.shortcut !== undefined,
+      )
+    }),
+  )
 }
 
 /**
@@ -1002,10 +1035,10 @@ export function requiresUnoAnalysis(options: OrderOptions): boolean {
  */
 export function sortClassList(
   input: string,
-  options: OrderOptions = {},
+  options: SortOptions = {},
   analyses?: AnalysisCollection,
 ): string {
-  const resolvedOptions = resolveOrderOptions(options)
+  const resolvedOptions = resolveSortOptions(options)
 
   if (!resolvedOptions.partitionByNewLine) {
     return sortPartition(input, resolvedOptions, analyses)
