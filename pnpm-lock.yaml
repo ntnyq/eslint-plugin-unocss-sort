@@ -40,8 +40,8 @@ importers:
         specifier: ^10.8.1
         version: 10.8.1(jiti@2.7.0)(supports-color@7.2.0)
       eslint-plugin-eslint-plugin:
-        specifier: ^7.6.1
-        version: 7.6.1(eslint@10.8.1(jiti@2.7.0)(supports-color@7.2.0))
+        specifier: ^7.6.2
+        version: 7.6.2(eslint@10.8.1(jiti@2.7.0)(supports-color@7.2.0))
       eslint-vitest-rule-tester:
         specifier: ^3.1.0
         version: 3.1.0(eslint@10.8.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@7.0.2)(vitest@4.1.10)
@@ -1046,8 +1046,8 @@ packages:
     resolution: {integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==}
     engines: {node: '>=10'}
 
-  eslint-plugin-eslint-plugin@7.6.1:
-    resolution: {integrity: sha512-Knh3EFP4T9K/hIu/V7LE29P/wkwfodITf8b5Zcv+YVTvpb1LIlO44NZzZ7MHMEkD9alxeDmXiR462mgMYL2Odg==}
+  eslint-plugin-eslint-plugin@7.6.2:
+    resolution: {integrity: sha512-MWE0tzCq0VatvFzELsTfmnMZHFZEQc2lK7HjeLLFiQDUPD8M1pCDlpOuQxGBzjbFvyvz4bfYjI03HQlbS5qdQQ==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24.0.0}
     peerDependencies:
       eslint: '>=9.0.0'
@@ -2456,7 +2456,7 @@ snapshots:
 
   escape-string-regexp@4.0.0: {}
 
-  eslint-plugin-eslint-plugin@7.6.1(eslint@10.8.1(jiti@2.7.0)(supports-color@7.2.0)):
+  eslint-plugin-eslint-plugin@7.6.2(eslint@10.8.1(jiti@2.7.0)(supports-color@7.2.0)):
     dependencies:
       '@eslint-community/eslint-utils': 4.10.1(eslint@10.8.1(jiti@2.7.0)(supports-color@7.2.0))
       eslint: 10.8.1(jiti@2.7.0)(supports-color@7.2.0)
