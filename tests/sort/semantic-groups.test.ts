@@ -7,6 +7,7 @@ describe('built-in semantic groups', () => {
       'overflow-hidden',
       'absolute',
       'flex',
+      'table-row',
       'flex-1',
       'grid-cols-2',
       'items-center',
@@ -14,12 +15,15 @@ describe('built-in semantic groups', () => {
       'w-2',
       'text-sm',
       'bg-red',
+      'mask-cover',
       'border',
+      'divide-solid',
       'opacity-50',
       'blur',
       'rotate-1',
       'duration-200',
       'animate-spin',
+      'appearance-none',
       'cursor-pointer',
       'i-home',
       'fill-red',
@@ -39,30 +43,37 @@ describe('built-in semantic groups', () => {
       'break-before-page clear-both columns-2 contain-layout content-visibility-auto float-left object-cover overflow-hidden',
     ],
     ['position', 'relative inset-2 pos-fixed position-sticky z0 z-10'],
-    ['display', 'block display-inherit inline-flex table-row'],
+    ['display', 'block display-inherit inline-flex'],
+    [
+      'table',
+      'border-collapse border-spacing-x-2 caption-top inline-table table-fixed table-row',
+    ],
     ['flex', 'basis-2 grow-0 order-1'],
     ['grid', 'grid-cols-2 col-span-1 row-start-2'],
     [
       'alignment',
       'align-middle content-center items-start justify-center place-content-end vertical-top',
     ],
-    ['spacing', '-m-2 divide divide-block-4 divide-x-2 m2 p2 px-4 space-x-2'],
+    ['spacing', '-m-2 m2 p2 px-4 space-x-2'],
     ['sizing', 'block-1 h20 inline-1 max-h-full min-w-0 size-4'],
     [
       'typography',
       'break-words c-red color-red content-empty font-bold fw-500 leading-4 lh-6 placeholder-red tracking-wide',
     ],
     ['background', 'bg-red from-blue to-green'],
-    ['border', 'border divide-red divide-solid ring-2 rounded'],
+    ['mask', 'mask-cover mask-no-repeat mask-radial-circle mask-type-alpha'],
+    ['border', 'border ring-2 rounded'],
+    ['divide', 'divide divide-block-4 divide-red divide-solid divide-x-2'],
     ['effects', 'shadow opacity-50 mix-blend-multiply'],
     ['filters', 'blur brightness-50 backdrop-blur'],
     ['transform', 'perspect-100 rotate-2 scale-95 translate-x-2'],
     ['transition', 'duration-200 ease-linear transition view-transition-card'],
     ['animation', 'animate-spin animate-pulse'],
     [
-      'interactivity',
-      'cursor-pointer field-sizing-content select-none touch-pan-x',
+      'ui-behavior',
+      'accent-red appearance-none caret-red color-scheme-dark field-sizing-content scheme-light',
     ],
+    ['interactivity', 'cursor-pointer select-none touch-pan-x'],
     ['icons', 'i-carbon-add icon-home'],
     ['svg', 'fill-red stroke-2'],
     ['accessibility', 'sr-only not-sr-only'],
@@ -128,5 +139,65 @@ describe('built-in semantic groups', () => {
     ).toBe(
       'break-words content-empty component break-before-page content-visibility-auto',
     )
+  })
+
+  it('keeps class-specific groups when CSS properties are broader', () => {
+    const analyses = {
+      'divide-solid': {
+        properties: ['border-style'],
+        recognized: true,
+        shortcut: false,
+      },
+      'table-row': {
+        properties: ['display'],
+        recognized: true,
+        shortcut: false,
+      },
+    }
+
+    expect(
+      sortClassList(
+        'border table-row block divide-solid',
+        {
+          groups: ['table', 'display', 'divide', 'border'],
+        },
+        analyses,
+      ),
+    ).toBe('table-row block divide-solid border')
+  })
+
+  it('classifies new groups from generated CSS properties', () => {
+    const analyses = {
+      'generated-divide': {
+        properties: ['--un-divide-x-reverse'],
+        recognized: true,
+        shortcut: false,
+      },
+      'generated-mask': {
+        properties: ['mask-size'],
+        recognized: true,
+        shortcut: false,
+      },
+      'generated-table': {
+        properties: ['table-layout'],
+        recognized: true,
+        shortcut: false,
+      },
+      'generated-ui': {
+        properties: ['color-scheme'],
+        recognized: true,
+        shortcut: false,
+      },
+    }
+
+    expect(
+      sortClassList(
+        'generated-ui generated-divide generated-table generated-mask',
+        {
+          groups: ['table', 'mask', 'divide', 'ui-behavior'],
+        },
+        analyses,
+      ),
+    ).toBe('generated-table generated-mask generated-divide generated-ui')
   })
 })

@@ -104,7 +104,11 @@ export function createSortingNode(
     group = 'shortcut'
   }
   if (!group && analysis.properties.length > 0) {
-    group = selectPropertyGroup(analysis.properties, descriptors)
+    group = selectPropertyGroup(
+      analysis.properties,
+      descriptors,
+      semantic.group,
+    )
   }
   if (!group && arbitrary) {
     group = 'arbitrary-property'

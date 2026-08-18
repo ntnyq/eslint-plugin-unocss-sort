@@ -21,9 +21,9 @@
 4. 本仓库的 `SEMANTIC_PATTERNS` 是在 UnoCSS 分析不可用时才启用的本地启发式分类表，
    不是 UnoCSS 官方 taxonomy。官方源码的模块边界可以作为总结依据，但不能直接等同
    于面向用户的排序分组。
-5. 现有分组已补齐一批高优先级 matcher，并修复 `content-*`、`break-*`、
-   `columns-*` 和逻辑尺寸的首匹配冲突。后续最值得新增的独立分组仍是 Wind4 的
-   `mask`；`table` 可以作为可选细分组。
+5. 现有分组已补齐一批高优先级 matcher，并新增 `table`、`mask`、`divide`、
+   `ui-behavior` 四个内建分组。`mask` 覆盖 Wind4 的独立规则模块；另外三个分组解决
+   table utility 分散、divide family 割裂和表单/UI 行为混入 interactivity 的问题。
 
 ## 版本边界
 
@@ -92,12 +92,12 @@ Wind4 未列运行时计数，因为它没有被本仓库锁定。
 
 | 审计对象                              |  命中 |  总数 |   比例 | 含义                               |
 | ------------------------------------- | ----: | ----: | -----: | ---------------------------------- |
-| Wind3 静态 matcher                    |   887 |   931 | 95.27% | 对有限字符串 matcher 的精确匹配    |
+| Wind3 静态 matcher                    |   889 |   931 | 95.49% | 对有限字符串 matcher 的精确匹配    |
 | Mini 官方 target 语料（去重）         | 1,077 | 1,182 | 91.12% | 对官方代表 utility 样本的前缀匹配  |
-| Wind3 + Mini 官方 target 语料（去重） | 1,456 | 1,583 | 91.98% | 对本仓库 preset 基线的代表语法覆盖 |
-| Wind4 官方 target 语料（去重）        | 1,492 | 1,738 | 85.85% | 对未安装 Wind4 的前瞻性参考        |
+| Wind3 + Mini 官方 target 语料（去重） | 1,458 | 1,583 | 92.10% | 对本仓库 preset 基线的代表语法覆盖 |
+| Wind4 官方 target 语料（去重）        | 1,587 | 1,738 | 91.31% | 对未安装 Wind4 的前瞻性参考        |
 
-其中 **95.27% 是静态规则的精确数字，91.98% 更接近实际 fallback 语法覆盖**。
+其中 **95.49% 是静态规则的精确数字，92.10% 更接近实际 fallback 语法覆盖**。
 动态正则 matcher 的可接受字符串通常无限，不能给出同等意义的精确百分比。
 
 target 口径严格只统计 `SEMANTIC_PATTERNS`。它没有把另行处理的
@@ -113,9 +113,10 @@ target 口径严格只统计 `SEMANTIC_PATTERNS`。它没有把另行处理的
 
 ## 与本仓库 `SEMANTIC_PATTERNS` 的关系
 
-本仓库把 fallback 顺序定义为 layout、position、display、flex/grid/alignment、
-spacing、sizing、typography、background/border、effects/filters、
-transform/transition/animation、interactivity、icons、svg、accessibility，见
+本仓库把 fallback 顺序定义为 layout、position、display、table、
+flex/grid/alignment、spacing、sizing、typography、background/mask、
+border/divide、effects/filters、transform/transition/animation、
+ui-behavior/interactivity、icons、svg、accessibility，见
 [`constants.ts`](../../src/features/sort/constants.ts)。它和 UnoCSS 官方源码的分类有明显
 交集，但不是一一对应：
 
@@ -151,7 +152,6 @@ transform/transition/animation、interactivity、icons、svg、accessibility，�
 | `transform`     | `preserve-3d`/`preserve-flat`                                                                                           | Mini [`transform.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/transform.ts)                                                                                                                                                                                                                                                 |
 | `transition`    | `property-*`                                                                                                            | Mini [`transition.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/transition.ts)                                                                                                                                                                                                                                               |
 | `animation`     | 可省略 `animate-` 的 `keyframes-*`                                                                                      | Wind3 [`animation.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind3/src/rules/animation.ts)                                                                                                                                                                                                                                                |
-| `interactivity` | `color-scheme-*` 需要决定放在 interactivity 还是 theme/layout                                                           | Mini [`color.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/color.ts)                                                                                                                                                                                                                                                         |
 | `accessibility` | Wind4 的 `forced-color-adjust-auto/none`                                                                                | Wind4 [`static.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind4/src/rules/static.ts)                                                                                                                                                                                                                                                      |
 
 ### 已修复的首匹配冲突
@@ -162,32 +162,32 @@ transform/transition/animation、interactivity、icons、svg、accessibility，�
   `content-visibility-*` 进入 layout。
 - 将文本 `break-*` 与分页/多栏 `break-before/inside/after-*` 分开。
 - 删除 grid 中不可达的 `columns-*` 分支，明确归入 layout。
-- 将方向/宽度型 `divide-*` 归入 spacing，颜色/线型/opacity 归入 border。
+- 将全部 `divide-*` 收敛到独立 divide 分组，不再在 spacing 和 border 之间割裂。
 - 收紧 display 的 `block`/`inline` 边界，让逻辑尺寸进入 sizing。
+- 从 typography 的 `color-*` 别名中排除 `color-scheme-*`，并将它与 `scheme-*`
+  官方别名一起归入 ui-behavior。
 
 这些歧义说明：有 UnoCSS analysis 时应优先按生成 CSS property 分类；fallback 正则应
 针对明确 token，而不是继续扩大含义重叠的宽前缀。
 
-## 可以新增哪些分组
+## 本次新增的分组
 
-按价值排序：
+按默认顺序和职责：
 
-1. **`mask`（推荐）**：Wind4 有独立、规模较大的
+1. **`table`**：集中 Wind3 独立
+   [`table.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind3/src/rules/table.ts)
+   中的 table display、border spacing/collapse、caption side、table layout 和 empty
+   cells。它位于 display 之后、flex/grid/alignment 之前。
+2. **`mask`**：Wind4 有独立、规模较大的
    [`mask.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind4/src/rules/mask.ts)，
    覆盖 mask image、gradient、position、repeat、size、mode、type、composite 等。
-   当前所有 `mask-*` fallback 都会成为 unknown。可将它放在 `background`/`effects`
-   附近，并同时给 property classifier 增加 `mask-*`。
-2. **`table`（可选）**：官方有独立
-   [`table.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind3/src/rules/table.ts)，
-   包含 display、border spacing/collapse、caption side、table layout、empty cells。
-   如果目标是更细的语义排序，独立组比把这些 token 分散到 display/border 更稳定；
-   如果要保持默认分组精简，则扩充现有组即可。
-3. **`forms` 或 `ui-behavior`（可选）**：可收 appearance、accent、caret、field sizing、
-   color scheme。当前 `interactivity` 已覆盖其中大部分，所以只有在用户确实需要更细
-   排序时才值得新增。
-4. **`divide`（低优先级可选）**：官方实现独立，且同时涉及 spacing 和 border。当前
-   默认 profile 已将方向/宽度型 utility 放入 spacing，颜色/线型/opacity 放入 border；
-   只有需要把它们整体移动时，独立组才有额外价值。
+   它与 background 同级，并同时支持 class-name fallback 和 `mask-*` CSS property。
+3. **`divide`**：统一容纳方向、宽度、reverse、颜色、opacity 和 border style，允许
+   使用者整体移动该 family。对于 `divide-solid` 这类只生成通用 `border-style` 的
+   utility，分类器会保留 class-name 提供的更具体语义。
+4. **`ui-behavior`**：集中 appearance、accent、caret、field sizing、color scheme 和
+   `scheme-*` 官方别名；cursor、pointer、resize、scroll、snap、touch、select 仍留在
+   interactivity。
 
 不建议仅为了和源码文件同名而新增 `static`、`behaviors`、`default` 等组；它们是内部
 代码组织名，不是清晰的 class 排序语义。`view-transition`、`content-visibility`、

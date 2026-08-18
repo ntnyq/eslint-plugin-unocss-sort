@@ -14,6 +14,10 @@ const propertyGroups: readonly [RegExp, string][] = [
     /^(?:visibility|overflow(?:-[xy])?$|object-|columns?$|float$|clear$|contain$|contain-intrinsic-|content-visibility$|break-(?:after|before|inside)$)/u,
     'layout',
   ],
+  [
+    /^(?:--un-border-spacing-|border-collapse$|border-spacing$|caption-side$|empty-cells$|table-layout$)/u,
+    'table',
+  ],
   [/^(?:position|inset|top|right|bottom|left|z-index)/u, 'position'],
   [/^display$/u, 'display'],
   [/^(?:flex|order$)/u, 'flex'],
@@ -29,6 +33,8 @@ const propertyGroups: readonly [RegExp, string][] = [
     'typography',
   ],
   [/^background/u, 'background'],
+  [/^(?:--un-mask-|(?:-webkit-)?mask(?:-|$))/u, 'mask'],
+  [/^--un-divide-/u, 'divide'],
   [/^(?:border|outline|box-decoration)/u, 'border'],
   [/^(?:box-shadow|opacity|mix-blend|background-blend)/u, 'effects'],
   [/^(?:filter|backdrop-filter)/u, 'filters'],
@@ -36,11 +42,23 @@ const propertyGroups: readonly [RegExp, string][] = [
   [/^(?:transition|view-transition)/u, 'transition'],
   [/^animation/u, 'animation'],
   [
-    /^(?:cursor|pointer-events|resize|scroll-|touch-action|user-select|appearance|accent-color|caret-color|field-sizing)/u,
+    /^(?:--un-(?:accent|caret)-|(?:-webkit-)?appearance$|accent-color$|caret-color$|color-scheme$|field-sizing$)/u,
+    'ui-behavior',
+  ],
+  [
+    /^(?:cursor|pointer-events|resize|scroll-|touch-action|user-select)/u,
     'interactivity',
   ],
   [/^(?:fill|stroke)/u, 'svg'],
 ]
+
+/**
+ * Semantic groups that refine otherwise indistinguishable CSS properties
+ */
+const semanticPropertyGroupOverrides = new Map([
+  ['divide', 'border'],
+  ['table', 'display'],
+])
 
 /**
  * Resolve the semantic group for a generated CSS property
@@ -179,17 +197,28 @@ export function matchesCustomGroup(
  *
  * @param properties Generated CSS properties
  * @param descriptors Descriptor lookup keyed by group name
+ * @param semanticGroup Semantic class-name group when already recognized
  * @returns Highest-priority matching group
  */
 export function selectPropertyGroup(
   properties: string[],
   descriptors: Map<string, GroupDescriptor>,
+  semanticGroup?: string,
 ): string | undefined {
   const candidates = properties.map(property => getPropertyGroup(property))
   const matchedGroups = filterFalsy(candidates)
-
-  return matchedGroups.toSorted(
+  const [propertyGroup] = matchedGroups.toSorted(
     (left, right) =>
       getGroupRank(left, descriptors) - getGroupRank(right, descriptors),
-  )[0]
+  )
+
+  if (
+    semanticGroup &&
+    propertyGroup &&
+    semanticPropertyGroupOverrides.get(semanticGroup) === propertyGroup
+  ) {
+    return semanticGroup
+  }
+
+  return propertyGroup
 }

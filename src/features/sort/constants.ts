@@ -7,14 +7,16 @@ export const DEFAULT_GROUPS = [
   'layout',
   'position',
   'display',
+  'table',
   ['flex', 'grid', 'alignment'],
   'spacing',
   'sizing',
   'typography',
-  ['background', 'border'],
+  ['background', 'mask'],
+  ['border', 'divide'],
   ['effects', 'filters'],
   ['transform', 'transition', 'animation'],
-  'interactivity',
+  ['ui-behavior', 'interactivity'],
   'icons',
   ['svg', 'accessibility'],
   'arbitrary-property',
@@ -110,8 +112,14 @@ export const SEMANTIC_PATTERNS: readonly {
   {
     group: 'display',
     pattern:
-      /^(?:hidden$|block$|inline(?:-block|-flex|-grid|-table)?$|flow-root$|contents$|list-item$|table(?:-.+)?$|display-|flex$|grid$)/u,
+      /^(?:hidden$|block$|inline(?:-block|-flex|-grid)?$|flow-root$|contents$|list-item$|display-|flex$|grid$)/u,
     property: 'display',
+  },
+  {
+    group: 'table',
+    pattern:
+      /^(?:inline-table$|table(?:-|$)|border-(?:collapse|separate)$|border-spacing-|caption-(?:top|bottom)$)/u,
+    property: 'table',
   },
   {
     group: 'flex',
@@ -132,7 +140,7 @@ export const SEMANTIC_PATTERNS: readonly {
   {
     group: 'spacing',
     pattern:
-      /^(?:-?[mp](?:[trblxyse]|[bi][se])?-(?:.+)|[mp](?:[trblxyse]|[bi][se])?\d|space-(?:[xy]|block|inline)(?:-|$)|divide(?:$|-?[xy](?:-|$)|-(?:block|inline)(?:-|$))|scroll-m|scroll-p)/u,
+      /^(?:-?[mp](?:[trblxyse]|[bi][se])?-(?:.+)|[mp](?:[trblxyse]|[bi][se])?\d|space-(?:[xy]|block|inline)(?:-|$)|scroll-m|scroll-p)/u,
     property: 'spacing',
   },
   {
@@ -144,7 +152,7 @@ export const SEMANTIC_PATTERNS: readonly {
   {
     group: 'typography',
     pattern:
-      /^(?:font-|text-|c-|color-|fw-|lh-|leading-|line-height-|tracking-|line-clamp-|list-|decoration-|underline|overline|line-through|no-underline|uppercase|lowercase|capitalize|normal-case|truncate|whitespace-|break-(?:normal|words|all|keep|anywhere)$|hyphens-|content-|placeholder-)/u,
+      /^(?:font-|text-|c-|color-(?!scheme(?:-|$))|fw-|lh-|leading-|line-height-|tracking-|line-clamp-|list-|decoration-|underline|overline|line-through|no-underline|uppercase|lowercase|capitalize|normal-case|truncate|whitespace-|break-(?:normal|words|all|keep|anywhere)$|hyphens-|content-|placeholder-)/u,
     property: 'typography',
   },
   {
@@ -153,9 +161,19 @@ export const SEMANTIC_PATTERNS: readonly {
     property: 'background',
   },
   {
+    group: 'mask',
+    pattern: /^mask(?:-|$)/u,
+    property: 'mask',
+  },
+  {
     group: 'border',
-    pattern: /^(?:border|rounded|ring|outline|divide(?:-|$))/u,
+    pattern: /^(?:border|rounded|ring|outline)/u,
     property: 'border',
+  },
+  {
+    group: 'divide',
+    pattern: /^divide(?:-|$)/u,
+    property: 'divide',
   },
   {
     group: 'effects',
@@ -186,9 +204,15 @@ export const SEMANTIC_PATTERNS: readonly {
     property: 'animation',
   },
   {
+    group: 'ui-behavior',
+    pattern:
+      /^(?:accent-|appearance-|caret-|(?:color-)?scheme-|field-sizing-)/u,
+    property: 'ui-behavior',
+  },
+  {
     group: 'interactivity',
     pattern:
-      /^(?:accent-|appearance-|caret-|cursor-|pointer-events-|resize|scroll-|snap-|touch-|select-|field-sizing-)/u,
+      /^(?:cursor-|pointer-events-|resize|scroll-|snap-|touch-|select-)/u,
     property: 'interactivity',
   },
   {
