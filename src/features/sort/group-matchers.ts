@@ -10,16 +10,22 @@ import type { CustomGroup, CustomGroupMatch, RegexOption } from './types'
  * CSS property patterns mapped to semantic utility groups
  */
 const propertyGroups: readonly [RegExp, string][] = [
-  [/^(?:visibility|overflow|object-|columns?$)/u, 'layout'],
+  [
+    /^(?:visibility|overflow(?:-[xy])?$|object-|columns?$|float$|clear$|contain$|contain-intrinsic-|content-visibility$|break-(?:after|before|inside)$)/u,
+    'layout',
+  ],
   [/^(?:position|inset|top|right|bottom|left|z-index)/u, 'position'],
   [/^display$/u, 'display'],
   [/^(?:flex|order$)/u, 'flex'],
   [/^(?:grid|grid-|column-|row-)/u, 'grid'],
   [/^(?:align-|justify-|place-)/u, 'alignment'],
   [/^(?:margin|padding|gap|scroll-margin|scroll-padding)/u, 'spacing'],
-  [/^(?:width|height|min-|max-|aspect-ratio)/u, 'sizing'],
   [
-    /^(?:font|line-height|letter-spacing|text-|color$|white-space|word-|hyphens|content$|list-style)/u,
+    /^(?:width|height|inline-size|block-size|min-|max-|aspect-ratio)/u,
+    'sizing',
+  ],
+  [
+    /^(?:font|line-height|letter-spacing|text-|color$|white-space|word-|overflow-wrap$|hyphens|content$|list-style)/u,
     'typography',
   ],
   [/^background/u, 'background'],
@@ -27,10 +33,10 @@ const propertyGroups: readonly [RegExp, string][] = [
   [/^(?:box-shadow|opacity|mix-blend|background-blend)/u, 'effects'],
   [/^(?:filter|backdrop-filter)/u, 'filters'],
   [/^(?:transform|translate|rotate|scale|perspective)/u, 'transform'],
-  [/^transition/u, 'transition'],
+  [/^(?:transition|view-transition)/u, 'transition'],
   [/^animation/u, 'animation'],
   [
-    /^(?:cursor|pointer-events|resize|scroll-|touch-action|user-select|appearance|accent-color|caret-color)/u,
+    /^(?:cursor|pointer-events|resize|scroll-|touch-action|user-select|appearance|accent-color|caret-color|field-sizing)/u,
     'interactivity',
   ],
   [/^(?:fill|stroke)/u, 'svg'],

@@ -1,8 +1,9 @@
 # `SEMANTIC_PATTERNS` 与 UnoCSS 规则范围核查
 
-> 核查日期：2026-08-15  
-> 本仓库基线：UnoCSS `66.7.5`  
-> 资料范围：UnoCSS 官方文档、`unocss/unocss` 官方源码、当前仓库锁定依赖
+> - 核查日期：2026-08-15
+> - 更新日期：2026-08-18
+> - 本仓库基线：UnoCSS `66.7.5`
+> - 资料范围：UnoCSS 官方文档、`unocss/unocss` 官方源码、当前仓库锁定依赖
 
 ## 结论摘要
 
@@ -20,9 +21,9 @@
 4. 本仓库的 `SEMANTIC_PATTERNS` 是在 UnoCSS 分析不可用时才启用的本地启发式分类表，
    不是 UnoCSS 官方 taxonomy。官方源码的模块边界可以作为总结依据，但不能直接等同
    于面向用户的排序分组。
-5. 当前最值得补齐的独立分组是 Wind4 的 `mask`；`table` 可以作为可选细分组。
-   更紧急的工作其实是扩充现有分组的 matcher，并修复首个匹配优先造成的误分类，
-   例如 `content-*`、`content-visibility-*` 当前会先命中 `alignment`。
+5. 现有分组已补齐一批高优先级 matcher，并修复 `content-*`、`break-*`、
+   `columns-*` 和逻辑尺寸的首匹配冲突。后续最值得新增的独立分组仍是 Wind4 的
+   `mask`；`table` 可以作为可选细分组。
 
 ## 版本边界
 
@@ -91,18 +92,18 @@ Wind4 未列运行时计数，因为它没有被本仓库锁定。
 
 | 审计对象                              |  命中 |  总数 |   比例 | 含义                               |
 | ------------------------------------- | ----: | ----: | -----: | ---------------------------------- |
-| Wind3 静态 matcher                    |   848 |   931 | 91.09% | 对有限字符串 matcher 的精确匹配    |
-| Mini 官方 target 语料（去重）         |   924 | 1,182 | 78.17% | 对官方代表 utility 样本的前缀匹配  |
-| Wind3 + Mini 官方 target 语料（去重） | 1,272 | 1,583 | 80.35% | 对本仓库 preset 基线的代表语法覆盖 |
-| Wind4 官方 target 语料（去重）        | 1,311 | 1,738 | 75.43% | 对未安装 Wind4 的前瞻性参考        |
+| Wind3 静态 matcher                    |   887 |   931 | 95.27% | 对有限字符串 matcher 的精确匹配    |
+| Mini 官方 target 语料（去重）         | 1,077 | 1,182 | 91.12% | 对官方代表 utility 样本的前缀匹配  |
+| Wind3 + Mini 官方 target 语料（去重） | 1,456 | 1,583 | 91.98% | 对本仓库 preset 基线的代表语法覆盖 |
+| Wind4 官方 target 语料（去重）        | 1,492 | 1,738 | 85.85% | 对未安装 Wind4 的前瞻性参考        |
 
-其中 **91.09% 是静态规则的精确数字，80.35% 更接近实际 fallback 语法覆盖**。
+其中 **95.27% 是静态规则的精确数字，91.98% 更接近实际 fallback 语法覆盖**。
 动态正则 matcher 的可接受字符串通常无限，不能给出同等意义的精确百分比。
 
 target 口径严格只统计 `SEMANTIC_PATTERNS`。它没有把另行处理的
 `arbitrary-property`、UnoCSS 配置分析得到的 CSS property、shortcut 和 custom group
 算作命中，因此不是整个插件的最终识别率。另一方面，“命中某个 pattern”也不保证
-分组正确；`content-*`、`break-*` 和逻辑尺寸等首匹配冲突会让这个百分比高估语义正确率。
+分组正确；后续新增宽前缀时仍需单独审计首匹配冲突。
 
 官方仓库的
 [`preset-mini-targets.ts`](https://github.com/unocss/unocss/blob/v66.7.5/test/assets/preset-mini-targets.ts)、
@@ -133,41 +134,36 @@ transform/transition/animation、interactivity、icons、svg、accessibility，�
 来源，以具体规则模块中的 matcher 为事实来源，以官方 target 文件作为回归样本，再用
 真实 generator 输出的 CSS property 做歧义消解。
 
-## 当前可见的缺口
+## 修复后的剩余缺口
 
 下面不是凭 Tailwind 文档猜测，而是对照 UnoCSS `v66.7.5` 官方规则模块得到的 family。
 
 ### 优先补入现有分组
 
-| 目标组          | 当前漏掉或容易误分的 family 示例                                                                                                                                          | 官方依据                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `layout`        | `float-*`、`clear-*`、`contain-*`、`intrinsic-*`、`content-visibility-*`、`backface-*`                                                                                    | Mini [`static.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/static.ts)、[`position.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/position.ts)                                                                                                                                                                                                                                                                     |
-| `position`      | `pos-*`、`position-*`、`z0`、`pos-z-*` 等官方别名                                                                                                                         | Mini [`position.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/position.ts)                                                                                                                                                                                                                                                                                                                                                                                     |
-| `display`       | `display-*` 任意/全局关键字形式                                                                                                                                           | Mini [`static.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/static.ts)                                                                                                                                                                                                                                                                                                                                                                                         |
-| `alignment`     | `vertical-*`、`align-*`、`v-*`                                                                                                                                            | Mini [`align.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/align.ts)                                                                                                                                                                                                                                                                                                                                                                                           |
-| `spacing`       | 无连字符短写如 `m2`/`p2`、逻辑方向短写、`space-inline/block-*`、`divide-inline/block-*`                                                                                   | Mini [`spacing.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/spacing.ts)、Wind4 [`spacing.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind4/src/rules/spacing.ts)、[`divide.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind4/src/rules/divide.ts)                                                                                                                                               |
-| `sizing`        | `h20` 等短写，以及 `min/max-inline-*`、`min/max-block-*`                                                                                                                  | Mini [`size.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/size.ts)                                                                                                                                                                                                                                                                                                                                                                                             |
-| `typography`    | `color-*`/`c-*`、`case-*`、`italic`/`oblique`、`antialiased`、`ws-*`、`tab-*`、`indent-*`、`fw-*`、`lh-*`、`word-spacing-*`、`write-*`、numeric variants、`placeholder-*` | Mini [`static.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/static.ts)、[`typography.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/typography.ts)，Wind3 [`typography.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind3/src/rules/typography.ts)、[`placeholder variant`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind3/src/variants/placeholder.ts) |
-| `background`    | `stops-*`、`shape-*` 两个可省略 `bg-gradient-` 的 Wind3 写法                                                                                                              | Wind3 [`background.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind3/src/rules/background.ts)                                                                                                                                                                                                                                                                                                                                                                                |
-| `border`        | `b-*` 别名；`divide-*` 的颜色、style、opacity 不会被当前只识别 x/y 的 spacing matcher 覆盖                                                                                | Mini [`border.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/border.ts)、Wind3 [`divide.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind3/src/rules/divide.ts)                                                                                                                                                                                                                                                                   |
-| `effects`       | `op-*`/`op10` opacity 别名、`image-render-*`                                                                                                                              | Mini [`color.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/color.ts)、Wind3 [`behaviors.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind3/src/rules/behaviors.ts)                                                                                                                                                                                                                                                               |
-| `transform`     | `perspect-*`/`perspect-origin-*`、`preserve-3d`/`preserve-flat`                                                                                                           | Mini [`transform.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/transform.ts)                                                                                                                                                                                                                                                                                                                                                                                   |
-| `transition`    | `property-*`、`view-transition-*`                                                                                                                                         | Mini [`transition.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/transition.ts)、Wind3 [`view-transition.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind3/src/rules/view-transition.ts)                                                                                                                                                                                                                                         |
-| `animation`     | 可省略 `animate-` 的 `keyframes-*`                                                                                                                                        | Wind3 [`animation.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind3/src/rules/animation.ts)                                                                                                                                                                                                                                                                                                                                                                                  |
-| `interactivity` | `field-sizing-*`；`color-scheme-*` 需要决定放在 interactivity 还是 theme/layout                                                                                           | Mini [`static.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/static.ts)、[`color.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/color.ts)                                                                                                                                                                                                                                                                           |
-| `accessibility` | Wind4 的 `forced-color-adjust-auto/none`                                                                                                                                  | Wind4 [`static.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind4/src/rules/static.ts)                                                                                                                                                                                                                                                                                                                                                                                        |
+| 目标组          | 仍未覆盖或待决策的 family 示例                                                                                          | 官方依据                                                                                                                                                                                                                                                                                                                                                                  |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `layout`        | `backface-*`                                                                                                            | Mini [`static.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/static.ts)                                                                                                                                                                                                                                                       |
+| `spacing`       | 无数值的紧凑短写，如 `p`、`pb`、`mxy`                                                                                   | Mini [`spacing.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/spacing.ts)                                                                                                                                                                                                                                                     |
+| `typography`    | `case-*`、`italic`/`oblique`、`antialiased`、`ws-*`、`tab-*`、`indent-*`、`word-spacing-*`、`write-*`、numeric variants | Mini [`static.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/static.ts)、[`typography.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/typography.ts)，Wind3 [`typography.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind3/src/rules/typography.ts) |
+| `background`    | `stops-*`、`shape-*` 两个可省略 `bg-gradient-` 的 Wind3 写法                                                            | Wind3 [`background.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind3/src/rules/background.ts)                                                                                                                                                                                                                                              |
+| `border`        | `b-*` 别名                                                                                                              | Mini [`border.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/border.ts)                                                                                                                                                                                                                                                       |
+| `effects`       | `op-*`/`op10` opacity 别名、`image-render-*`                                                                            | Mini [`color.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/color.ts)、Wind3 [`behaviors.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind3/src/rules/behaviors.ts)                                                                                                                             |
+| `transform`     | `preserve-3d`/`preserve-flat`                                                                                           | Mini [`transform.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/transform.ts)                                                                                                                                                                                                                                                 |
+| `transition`    | `property-*`                                                                                                            | Mini [`transition.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/transition.ts)                                                                                                                                                                                                                                               |
+| `animation`     | 可省略 `animate-` 的 `keyframes-*`                                                                                      | Wind3 [`animation.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind3/src/rules/animation.ts)                                                                                                                                                                                                                                                |
+| `interactivity` | `color-scheme-*` 需要决定放在 interactivity 还是 theme/layout                                                           | Mini [`color.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-mini/src/_rules/color.ts)                                                                                                                                                                                                                                                         |
+| `accessibility` | Wind4 的 `forced-color-adjust-auto/none`                                                                                | Wind4 [`static.ts`](https://github.com/unocss/unocss/blob/v66.7.5/packages-presets/preset-wind4/src/rules/static.ts)                                                                                                                                                                                                                                                      |
 
-### 需要先修的首匹配冲突
+### 已修复的首匹配冲突
 
-`SEMANTIC_PATTERNS` 不是简单的“正则覆盖集合”，而是有优先级的分类器。目前至少有：
+`SEMANTIC_PATTERNS` 不是简单的“正则覆盖集合”，而是有优先级的分类器。本次修复包括：
 
-- `content-*` 会先命中 `alignment` 中的 `content-`，因此 CSS `content` utility 和
-  `content-visibility-*` 都无法到达后面的 typography matcher。
-- `break-*` 会先命中 `layout`；但 UnoCSS 同时存在文本断行类和多栏/分页 break
-  概念，只看前缀不足以稳定区分。
-- `columns-*` 同时写在 layout 和 grid matcher 中，但 layout 在前，grid 分支实际上
-  无法命中该前缀。
-- `divide-*` 只有 x/y spacing 形式被识别；颜色、线型、opacity 会落到 unknown。
+- 将 alignment 的 `content-*` 收窄为明确值，让 `content-empty` 进入 typography、
+  `content-visibility-*` 进入 layout。
+- 将文本 `break-*` 与分页/多栏 `break-before/inside/after-*` 分开。
+- 删除 grid 中不可达的 `columns-*` 分支，明确归入 layout。
+- 将方向/宽度型 `divide-*` 归入 spacing，颜色/线型/opacity 归入 border。
+- 收紧 display 的 `block`/`inline` 边界，让逻辑尺寸进入 sizing。
 
 这些歧义说明：有 UnoCSS analysis 时应优先按生成 CSS property 分类；fallback 正则应
 针对明确 token，而不是继续扩大含义重叠的宽前缀。
@@ -189,9 +185,9 @@ transform/transition/animation、interactivity、icons、svg、accessibility，�
 3. **`forms` 或 `ui-behavior`（可选）**：可收 appearance、accent、caret、field sizing、
    color scheme。当前 `interactivity` 已覆盖其中大部分，所以只有在用户确实需要更细
    排序时才值得新增。
-4. **`divide`（低优先级可选）**：官方实现独立，且同时涉及 spacing 和 border；独立组
-   能消除 `divide-x-*` 与 `divide-color/style` 被分到不同组的问题。默认配置也可以不
-   暴露新组，而是规定全部 `divide-*` 归 border 或 spacing。
+4. **`divide`（低优先级可选）**：官方实现独立，且同时涉及 spacing 和 border。当前
+   默认 profile 已将方向/宽度型 utility 放入 spacing，颜色/线型/opacity 放入 border；
+   只有需要把它们整体移动时，独立组才有额外价值。
 
 不建议仅为了和源码文件同名而新增 `static`、`behaviors`、`default` 等组；它们是内部
 代码组织名，不是清晰的 class 排序语义。`view-transition`、`content-visibility`、

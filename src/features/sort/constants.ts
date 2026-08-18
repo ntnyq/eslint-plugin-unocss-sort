@@ -98,19 +98,19 @@ export const SEMANTIC_PATTERNS: readonly {
   {
     group: 'layout',
     pattern:
-      /^(?:container|box-|box$|columns?-|break-|object-|overflow|overscroll|visible$|invisible$|collapse$|isolate$|isolation-)/u,
+      /^(?:container|box-|box$|columns?-|break-(?:after|before|inside)-|object-|overflow|overscroll|visible$|invisible$|collapse$|isolate(?:-|$)|isolation-|float-|clear-|contain-|content-visibility-|intrinsic-)/u,
     property: 'layout',
   },
   {
     group: 'position',
     pattern:
-      /^(?:static|fixed|absolute|relative|sticky|inset|top-|right-|bottom-|left-|start-|end-|z-)/u,
+      /^(?:(?:static|fixed|absolute|relative|sticky)$|(?:position|pos)-|inset|top-|right-|bottom-|left-|start-|end-|z(?:-|(?=\d)))/u,
     property: 'position',
   },
   {
     group: 'display',
     pattern:
-      /^(?:hidden|block|inline(?:-block|-flex|-grid|-table)?|flow-root|contents|list-item|table(?:-.+)?|flex$|grid$)/u,
+      /^(?:hidden$|block$|inline(?:-block|-flex|-grid|-table)?$|flow-root$|contents$|list-item$|table(?:-.+)?$|display-|flex$|grid$)/u,
     property: 'display',
   },
   {
@@ -120,29 +120,31 @@ export const SEMANTIC_PATTERNS: readonly {
   },
   {
     group: 'grid',
-    pattern: /^(?:grid-|auto-cols-|auto-rows-|col-|row-|gap(?:-|$)|columns?-)/u,
+    pattern: /^(?:grid-|auto-cols-|auto-rows-|col-|row-|gap(?:-|$))/u,
     property: 'grid',
   },
   {
     group: 'alignment',
-    pattern: /^(?:justify-|items-|content-|self-|place-)/u,
+    pattern:
+      /^(?:justify-|items-|self-|place-|(?:vertical|align|v)-|content-(?:(?:center|end)-safe|center|start|end|between|around|evenly|baseline|stretch|normal|inherit|initial|revert(?:-layer)?|unset)$)/u,
     property: 'alignment',
   },
   {
     group: 'spacing',
     pattern:
-      /^(?:-?[mp][trblxyse]?-(?:.+)|space-[xy]-|divide-[xy]-|scroll-m|scroll-p)/u,
+      /^(?:-?[mp](?:[trblxyse]|[bi][se])?-(?:.+)|[mp](?:[trblxyse]|[bi][se])?\d|space-(?:[xy]|block|inline)(?:-|$)|divide(?:$|-?[xy](?:-|$)|-(?:block|inline)(?:-|$))|scroll-m|scroll-p)/u,
     property: 'spacing',
   },
   {
     group: 'sizing',
-    pattern: /^(?:size-|w-|h-|min-w-|max-w-|min-h-|max-h-|aspect-)/u,
+    pattern:
+      /^(?:size-|(?:min-|max-)?(?:w|h|block|inline)-|(?:min-|max-)?[wh]\d|aspect-)/u,
     property: 'sizing',
   },
   {
     group: 'typography',
     pattern:
-      /^(?:font-|text-|leading-|tracking-|line-clamp-|list-|decoration-|underline|overline|line-through|no-underline|uppercase|lowercase|capitalize|normal-case|truncate|whitespace-|break-|hyphens-|content-)/u,
+      /^(?:font-|text-|c-|color-|fw-|lh-|leading-|line-height-|tracking-|line-clamp-|list-|decoration-|underline|overline|line-through|no-underline|uppercase|lowercase|capitalize|normal-case|truncate|whitespace-|break-(?:normal|words|all|keep|anywhere)$|hyphens-|content-|placeholder-)/u,
     property: 'typography',
   },
   {
@@ -152,7 +154,7 @@ export const SEMANTIC_PATTERNS: readonly {
   },
   {
     group: 'border',
-    pattern: /^(?:border|rounded|ring|outline)/u,
+    pattern: /^(?:border|rounded|ring|outline|divide(?:-|$))/u,
     property: 'border',
   },
   {
@@ -169,12 +171,13 @@ export const SEMANTIC_PATTERNS: readonly {
   {
     group: 'transform',
     pattern:
-      /^(?:transform|origin-|translate-|rotate-|skew-|scale-|perspective-)/u,
+      /^(?:transform|origin-|translate-|rotate-|skew-|scale-|perspect(?:ive)?-)/u,
     property: 'transform',
   },
   {
     group: 'transition',
-    pattern: /^(?:transition|duration-|ease-|delay-|will-change-)/u,
+    pattern:
+      /^(?:transition|duration-|ease-|delay-|will-change-|view-transition-)/u,
     property: 'transition',
   },
   {
@@ -185,7 +188,7 @@ export const SEMANTIC_PATTERNS: readonly {
   {
     group: 'interactivity',
     pattern:
-      /^(?:accent-|appearance-|caret-|cursor-|pointer-events-|resize|scroll-|snap-|touch-|select-)/u,
+      /^(?:accent-|appearance-|caret-|cursor-|pointer-events-|resize|scroll-|snap-|touch-|select-|field-sizing-)/u,
     property: 'interactivity',
   },
   {
