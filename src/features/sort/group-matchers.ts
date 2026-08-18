@@ -11,7 +11,7 @@ import type { CustomGroup, CustomGroupMatch, RegexOption } from './types'
  */
 const propertyGroups: readonly [RegExp, string][] = [
   [
-    /^(?:visibility|overflow(?:-[xy])?$|object-|columns?$|float$|clear$|contain$|contain-intrinsic-|content-visibility$|break-(?:after|before|inside)$)/u,
+    /^(?:visibility|overflow(?:-[xy])?$|object-|columns?$|float$|clear$|contain$|contain-intrinsic-|content-visibility$|backface-visibility$|break-(?:after|before|inside)$)/u,
     'layout',
   ],
   [
@@ -29,14 +29,17 @@ const propertyGroups: readonly [RegExp, string][] = [
     'sizing',
   ],
   [
-    /^(?:font|line-height|letter-spacing|text-|color$|white-space|word-|overflow-wrap$|hyphens|content$|list-style)/u,
+    /^(?:font|line-height|letter-spacing|text-|color$|white-space|word-|overflow-wrap$|hyphens|content$|list-style|writing-mode$|text-orientation$|-(?:webkit|moz)-font-smoothing$)/u,
     'typography',
   ],
   [/^background/u, 'background'],
   [/^(?:--un-mask-|(?:-webkit-)?mask(?:-|$))/u, 'mask'],
   [/^--un-divide-/u, 'divide'],
   [/^(?:border|outline|box-decoration)/u, 'border'],
-  [/^(?:box-shadow|opacity|mix-blend|background-blend)/u, 'effects'],
+  [
+    /^(?:box-shadow|opacity|mix-blend|background-blend|image-rendering$)/u,
+    'effects',
+  ],
   [/^(?:filter|backdrop-filter)/u, 'filters'],
   [/^(?:transform|translate|rotate|scale|perspective)/u, 'transform'],
   [/^(?:transition|view-transition)/u, 'transition'],

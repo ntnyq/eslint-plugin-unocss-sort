@@ -1,5 +1,7 @@
+import { rules as wind3Rules } from '@unocss/preset-wind3/rules'
 import { describe, expect, it } from 'vitest'
 import { sortClassList } from '../../src'
+import { SEMANTIC_PATTERNS } from '../../src/features/sort/constants'
 
 describe('built-in semantic groups', () => {
   it('classifies and orders every built-in semantic utility family', () => {
@@ -40,7 +42,7 @@ describe('built-in semantic groups', () => {
   it.each([
     [
       'layout',
-      'break-before-page clear-both columns-2 contain-layout content-visibility-auto float-left object-cover overflow-hidden',
+      'backface-hidden break-before-page clear-both columns-2 contain-layout content-visibility-auto float-left object-cover overflow-hidden',
     ],
     ['position', 'relative inset-2 pos-fixed position-sticky z0 z-10'],
     ['display', 'block display-inherit inline-flex'],
@@ -58,13 +60,13 @@ describe('built-in semantic groups', () => {
     ['sizing', 'block-1 h20 inline-1 max-h-full min-w-0 size-4'],
     [
       'typography',
-      'break-words c-red color-red content-empty font-bold fw-500 leading-4 lh-6 placeholder-red tracking-wide',
+      'antialiased break-words c-red case-upper color-red content-empty diagonal-fractions font-bold fw-500 italic leading-4 lh-6 normal-nums placeholder-red tracking-wide write-vertical-right',
     ],
     ['background', 'bg-red from-blue to-green'],
     ['mask', 'mask-cover mask-no-repeat mask-radial-circle mask-type-alpha'],
     ['border', 'border ring-2 rounded'],
     ['divide', 'divide divide-block-4 divide-red divide-solid divide-x-2'],
-    ['effects', 'shadow opacity-50 mix-blend-multiply'],
+    ['effects', 'image-render-pixel shadow opacity-50 mix-blend-multiply'],
     ['filters', 'blur brightness-50 backdrop-blur'],
     ['transform', 'perspect-100 rotate-2 scale-95 translate-x-2'],
     ['transition', 'duration-200 ease-linear transition view-transition-card'],
@@ -199,5 +201,56 @@ describe('built-in semantic groups', () => {
         analyses,
       ),
     ).toBe('generated-table generated-mask generated-divide generated-ui')
+  })
+
+  it('classifies remaining families from generated CSS properties', () => {
+    const analyses = {
+      'generated-antialiasing': {
+        properties: ['-webkit-font-smoothing'],
+        recognized: true,
+        shortcut: false,
+      },
+      'generated-backface': {
+        properties: ['backface-visibility'],
+        recognized: true,
+        shortcut: false,
+      },
+      'generated-image-rendering': {
+        properties: ['image-rendering'],
+        recognized: true,
+        shortcut: false,
+      },
+      'generated-writing-mode': {
+        properties: ['writing-mode'],
+        recognized: true,
+        shortcut: false,
+      },
+    }
+
+    expect(
+      sortClassList(
+        'generated-writing-mode generated-image-rendering generated-backface generated-antialiasing',
+        {
+          groups: ['layout', 'typography', 'effects'],
+        },
+        analyses,
+      ),
+    ).toBe(
+      'generated-backface generated-antialiasing generated-writing-mode generated-image-rendering',
+    )
+  })
+
+  it('classifies every static Wind3 matcher', () => {
+    const staticMatchers = wind3Rules
+      .map(([matcher]) => matcher)
+      .filter((matcher): matcher is string => typeof matcher === 'string')
+    const unclassified = staticMatchers.filter(matcher => {
+      const normalized = matcher.startsWith('-') ? matcher.slice(1) : matcher
+
+      return !SEMANTIC_PATTERNS.some(({ pattern }) => pattern.test(normalized))
+    })
+
+    expect(staticMatchers).toHaveLength(931)
+    expect(unclassified).toStrictEqual([])
   })
 })

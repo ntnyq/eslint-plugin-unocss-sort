@@ -100,7 +100,7 @@ export const SEMANTIC_PATTERNS: readonly {
   {
     group: 'layout',
     pattern:
-      /^(?:container|box-|box$|columns?-|break-(?:after|before|inside)-|object-|overflow|overscroll|visible$|invisible$|collapse$|isolate(?:-|$)|isolation-|float-|clear-|contain-|content-visibility-|intrinsic-)/u,
+      /^(?:container|box-|box$|columns?-|break-(?:after|before|inside)-|object-|overflow|overscroll|visible$|invisible$|collapse$|isolate(?:-|$)|isolation-|float-|clear-|contain-|content-visibility-|intrinsic-|backface-)/u,
     property: 'layout',
   },
   {
@@ -152,7 +152,7 @@ export const SEMANTIC_PATTERNS: readonly {
   {
     group: 'typography',
     pattern:
-      /^(?:font-|text-|c-|color-(?!scheme(?:-|$))|fw-|lh-|leading-|line-height-|tracking-|line-clamp-|list-|decoration-|underline|overline|line-through|no-underline|uppercase|lowercase|capitalize|normal-case|truncate|whitespace-|break-(?:normal|words|all|keep|anywhere)$|hyphens-|content-|placeholder-)/u,
+      /^(?:font-|text-|c-|color-(?!scheme(?:-|$))|fw-|lh-|leading-|line-height-|tracking-|line-clamp-|list-|decoration-|underline|overline|line-through|no-underline|uppercase|lowercase|capitalize|normal-case|truncate|whitespace-|break-(?:normal|words|all|keep|anywhere)$|hyphens-|content-|placeholder-|case-|(?:not-)?(?:italic|oblique)$|(?:subpixel-)?antialiased$|write-|ordinal$|slashed-zero$|(?:normal|lining|oldstyle|proportional|tabular)-nums$|(?:diagonal|stacked)-fractions$)/u,
     property: 'typography',
   },
   {
@@ -177,7 +177,7 @@ export const SEMANTIC_PATTERNS: readonly {
   },
   {
     group: 'effects',
-    pattern: /^(?:shadow|opacity-|mix-blend-|bg-blend-)/u,
+    pattern: /^(?:shadow|opacity-|mix-blend-|bg-blend-|image-render-)/u,
     property: 'effects',
   },
   {
