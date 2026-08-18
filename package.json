@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-unocss-sort",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Deterministic and configurable UnoCSS utility sorting for ESLint",
   "keywords": [
     "eslint",
