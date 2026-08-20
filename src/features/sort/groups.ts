@@ -8,6 +8,7 @@ import {
   matchesCustomGroup,
   selectPropertyGroup,
 } from './group-matchers'
+import type { SemanticProfileDefinition } from './profiles'
 import type { ResolvedSortOptions } from './resolved-types'
 import { classifyVariant, splitVariants } from './variants'
 import type { VariantKey } from './variants'
@@ -71,6 +72,7 @@ function getAnalysis(
  * @param options Resolved ordering options
  * @param descriptors Descriptor lookup keyed by group name
  * @param variantGroupRanks Variant group rank lookup
+ * @param profile Resolved semantic ordering profile
  * @param analyses Collected UnoCSS analysis metadata
  * @returns Sortable utility node
  */
@@ -80,12 +82,13 @@ export function createSortingNode(
   options: ResolvedSortOptions,
   descriptors: Map<string, GroupDescriptor>,
   variantGroupRanks: Map<string, number>,
+  profile: SemanticProfileDefinition,
   analyses?: AnalysisCollection,
 ): SortingNode {
   const { base, variants: variantNames } = splitVariants(raw)
   const analysis = getAnalysis(analyses, raw)
   const normalizedBase = base.startsWith('-') ? base.slice(1) : base
-  const semantic = getSemanticGroup(normalizedBase)
+  const semantic = getSemanticGroup(normalizedBase, profile)
   const arbitrary = isArbitraryProperty(normalizedBase)
   const recognized =
     analysis.recognized || isTruthy(semantic.group) || arbitrary
@@ -107,6 +110,7 @@ export function createSortingNode(
     group = selectPropertyGroup(
       analysis.properties,
       descriptors,
+      profile,
       semantic.group,
     )
   }
@@ -136,6 +140,7 @@ export function createSortingNode(
         options,
         variantGroupRanks,
         originalIndex,
+        profile,
         analysis.breakpoints,
       ),
     ),

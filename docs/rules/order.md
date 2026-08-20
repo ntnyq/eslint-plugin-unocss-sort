@@ -58,6 +58,8 @@ The rule accepts one options object:
 {
   analysis: 'auto',
   type: 'semantic',
+  profile: 'wind3',
+  orderVersion: 1,
   order: 'asc',
   fallbackSort: {
     type: 'code-point',
@@ -173,6 +175,34 @@ shortcuts, `meta.sort` values, and configured breakpoints. It is required by:
 - an explicitly configured `variants.responsiveOrder: 'theme'`
 - custom group matchers using `cssPropertyPattern`, `layer`, `recognized`, or
   `shortcut`
+
+### `profile` and `orderVersion`
+
+These options select a versioned semantic classification protocol:
+
+```ts
+{
+  profile: 'wind3',
+  orderVersion: 1,
+}
+```
+
+Both values default to the only currently available coordinate, `wind3@1`.
+The profile locks the observable behavior of built-in class-name and generated
+CSS-property classification, default utility groups, variant groups,
+responsive variants, and built-in custom groups. Adding a new profile or order
+version does not change an existing coordinate.
+
+The selected profile supplies defaults for plugin-defined group modes,
+including `semantic`, `uno-metadata`, and the string comparators. Explicit
+`groups`, `customGroups`, or `variants` options continue to override the
+corresponding defaults. The official whole-list `uno` protocol does not use
+semantic classification.
+
+Projects that require repository-wide formatting stability should configure
+both values explicitly. Unsupported profile/version pairs fail during option
+validation. A locked version remains available for at least one major release
+after a replacement is introduced.
 
 ### `type`
 

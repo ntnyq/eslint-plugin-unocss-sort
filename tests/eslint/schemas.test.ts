@@ -23,6 +23,8 @@ describe('order option schema', () => {
   it.each([
     { options: { unsupported: true }, reason: 'unknown top-level property' },
     { options: { type: 'random' }, reason: 'unknown sort type' },
+    { options: { profile: 'wind4' }, reason: 'unknown semantic profile' },
+    { options: { orderVersion: 2 }, reason: 'unknown semantic order version' },
     {
       options: { groups: [{ group: 'spacing', type: 'uno' }] },
       reason: 'official UnoCSS sorting as a group override',
@@ -82,7 +84,9 @@ describe('order option schema', () => {
       ignoreCase: true,
       locales: ['en-US'],
       order: 'asc',
+      orderVersion: 1,
       partitionByNewLine: false,
+      profile: 'wind3',
       shortcuts: 'expanded',
       specialCharacters: 'remove',
       targets: [

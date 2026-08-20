@@ -33,6 +33,8 @@ export default [
         'warn',
         {
           type: 'semantic',
+          profile: 'wind3',
+          orderVersion: 1,
           groups: [
             'layout',
             'position',
@@ -138,6 +140,8 @@ The main configuration layers are utility groups, group-local comparators, varia
 ```ts
 {
   type: 'semantic',
+  profile: 'wind3',
+  orderVersion: 1,
   order: 'asc',
   fallbackSort: {
     type: 'code-point',
@@ -212,6 +216,13 @@ Available sort types are `semantic`, `uno`, `uno-metadata`, `natural`,
 - `unsorted` moves groups but preserves their internal source order.
 - Every comparator falls back to deterministic code-point order and then original position.
 
+The default semantic classification protocol is versioned as `wind3@1`.
+Configure both `profile: 'wind3'` and `orderVersion: 1` explicitly when a
+repository wants upgrades of this plugin to preserve its semantic output. The
+locked profile covers built-in class and CSS-property classification, default
+utility and variant groups, responsive variants, and built-in custom groups.
+Future profiles or versions will be added without changing `wind3@1`.
+
 The official `uno` protocol moves unknown utilities before recognized ones,
 uses UnoCSS's rule and variant rank, and normalizes whitespace like the official
 rule. Other grouping, variant, unknown, shortcut, comparison, whitespace, and
@@ -253,6 +264,9 @@ config. Default `semantic` sorting works without one.
 When upgrading from a release before 0.1.0, replace an existing `type: 'uno'`
 with `type: 'uno-metadata'` to preserve its behavior. See the
 [0.1.0 migration guide](./docs/migrations/v0.1.0.md).
+
+Version 0.2.0 adds explicit semantic profile coordinates without changing the
+default output. See the [0.2.0 migration guide](./docs/migrations/v0.2.0.md).
 
 ## Duplicate classes
 

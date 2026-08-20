@@ -4,7 +4,7 @@ import type { UtilityAnalysis } from '../../uno/types'
 import { createGroupDescriptors, isGroupOverride } from './group-descriptors'
 import { createSortingNode } from './groups'
 import type { AnalysisCollection } from './groups'
-import { resolveSortOptions } from './options'
+import { resolveSemanticProfile, resolveSortOptions } from './options'
 import type { ResolvedSortOptions } from './resolved-types'
 import { sortNodes } from './sort-nodes'
 import type { SortOptions } from './types'
@@ -38,6 +38,7 @@ function sortPartition(
   const tokens = filterFalsy(expandedResult.expanded.split(/\s+/u))
   const descriptors = createGroupDescriptors(options.groups)
   const variantGroupRanks = createVariantGroupRanks(options.variants.groups)
+  const profile = resolveSemanticProfile(options.profile, options.orderVersion)
   const nodes = tokens.map((raw, originalIndex) =>
     createSortingNode(
       raw,
@@ -45,6 +46,7 @@ function sortPartition(
       options,
       descriptors,
       variantGroupRanks,
+      profile,
       analyses,
     ),
   )

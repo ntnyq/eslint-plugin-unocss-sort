@@ -5,6 +5,10 @@ import { resolveSortOptions } from '../../src/features/sort/options'
 describe('sort option resolution', () => {
   it('resolves every default option', () => {
     expect(resolveSortOptions()).toStrictEqual(DEFAULT_SORT_OPTIONS)
+    expect(resolveSortOptions()).toMatchObject({
+      orderVersion: 1,
+      profile: 'wind3',
+    })
   })
 
   it('replaces list options and deeply merges partial fallback and variants', () => {

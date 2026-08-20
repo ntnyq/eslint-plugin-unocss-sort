@@ -3,6 +3,8 @@ import type {
   CustomVariantGroup,
   FallbackSort,
   GroupOption,
+  SemanticOrderVersion,
+  SemanticProfile,
   SortOrder,
   SortType,
   SpecialCharacters,
@@ -79,9 +81,19 @@ export interface ResolvedSortOptions {
   order: SortOrder
 
   /**
+   * Resolved semantic ordering protocol version
+   */
+  orderVersion: SemanticOrderVersion
+
+  /**
    * Whether each newline-delimited section is sorted independently
    */
   partitionByNewLine: boolean
+
+  /**
+   * Resolved semantic classification profile
+   */
+  profile: SemanticProfile
 
   /**
    * Placement behavior for UnoCSS shortcuts

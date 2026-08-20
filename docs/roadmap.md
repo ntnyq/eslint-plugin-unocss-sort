@@ -7,15 +7,16 @@ ecosystem coverage second, and convenience features last.
 The current baseline already includes:
 
 - stable semantic sorting, official UnoCSS ordering, and metadata-aware sorting
+- versioned semantic profiles, starting with `wind3@1`
 - `analysis: 'auto' | 'always' | 'never'`
 - unified attribute, callee, tag, and variable target selectors
 - argument selection and object key/value path matchers
 - `whitespace: 'preserve' | 'collapse'`
 - a separate `no-duplicate-classes` rule
 
-## P0: Ordering protocol before a stable release
+## Completed protocol milestones
 
-### Define exact UnoCSS ordering modes (targeted for 0.1.0)
+### 0.1.0: Explicit UnoCSS ordering modes
 
 The ordering protocols are now explicit:
 
@@ -24,31 +25,29 @@ The ordering protocols are now explicit:
   rule order, and `meta.sort` metadata
 - migration and compatibility fixtures lock both behaviors
 
-Keep these protocols locked before users persist their output across a large
-repository.
+### 0.2.0: Versioned semantic profiles
 
-### Version semantic ordering profiles
+- `profile: 'wind3'` and `orderVersion: 1` identify the v0.1 semantic behavior
+- the coordinate locks class and property classification, utility and variant
+  defaults, responsive variants, and built-in custom groups
+- observable compatibility fixtures preserve the v0.1 output
+- old profile versions remain available for at least one major release after a
+  replacement is introduced
 
-The built-in semantic patterns are currently implementation details. Changing
-them in a dependency update could create a repository-wide formatting diff.
+Future `wind4` or `property` profiles must be introduced as new coordinates;
+they must not modify `wind3@1`.
 
-Plan:
-
-- introduce profiles such as `wind3`, `wind4`, and `property`
-- expose an explicit `orderVersion`
-- document which plugin releases may add groups without changing a locked
-  version
-- keep old versions available for at least one major release after replacement
+## P0: Compatibility hardening
 
 ### Expand invariant and compatibility fixtures
 
 Keep the public sorting interface covered by observable behavior rather than
 implementation details.
 
-Required coverage:
+Ongoing coverage:
 
 - official UnoCSS parity fixtures for the official mode
-- semantic profile snapshots and upgrade fixtures
+- semantic profile compatibility and upgrade fixtures
 - unknown utilities and shortcuts at every partition position
 - custom layers, multiple generated properties, `meta.sort`, custom
   breakpoints, and invalid configs

@@ -1,6 +1,11 @@
-/**
- * Direction used when sorting utility classes
- */
+import type { SemanticProfileOptions } from './semantic-profile-options'
+
+export type {
+  SemanticOrderVersion,
+  SemanticProfile,
+} from './semantic-profile-options'
+
+/** Direction used when sorting utility classes */
 export type SortOrder = 'asc' | 'desc'
 
 /**
@@ -222,7 +227,7 @@ export interface VariantOptions {
 /**
  * User-facing options for the UnoCSS class ordering rule
  */
-export interface SortOptions {
+export interface SortOptions extends SemanticProfileOptions {
   /**
    * Alphabet used by the custom comparison strategy
    */

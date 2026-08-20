@@ -13,7 +13,16 @@ assert.equal(unocssSort, plugin)
 assert.equal(typeof plugin.rules?.['order']?.create, 'function')
 assert.equal(typeof plugin.rules?.['no-duplicate-classes']?.create, 'function')
 assert.equal(DEFAULT_SORT_OPTIONS.type, 'semantic')
+assert.equal(DEFAULT_SORT_OPTIONS.profile, 'wind3')
+assert.equal(DEFAULT_SORT_OPTIONS.orderVersion, 1)
 assert.equal(sortClassList('text-white flex p-2'), 'flex p-2 text-white')
+assert.equal(
+  sortClassList('text-white flex p-2', {
+    orderVersion: 1,
+    profile: 'wind3',
+  }),
+  'flex p-2 text-white',
+)
 
 const configPath = fileURLToPath(
   new URL('fixtures/uno.config.ts', import.meta.url),

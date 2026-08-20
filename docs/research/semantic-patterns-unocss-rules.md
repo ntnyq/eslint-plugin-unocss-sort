@@ -1,7 +1,7 @@
 # `SEMANTIC_PATTERNS` 与 UnoCSS 规则范围核查
 
 > - 核查日期：2026-08-15
-> - 更新日期：2026-08-18
+> - 更新日期：2026-08-20
 > - 本仓库基线：UnoCSS `66.7.5`
 > - 资料范围：UnoCSS 官方文档、`unocss/unocss` 官方源码、当前仓库锁定依赖
 
@@ -119,8 +119,8 @@ target 口径严格只统计 `SEMANTIC_PATTERNS`。它没有把另行处理的
 flex/grid/alignment、spacing、sizing、typography、background/mask、
 border/divide、effects/filters、transform/transition/animation、
 ui-behavior/interactivity、icons、svg、accessibility，见
-[`constants.ts`](../../src/features/sort/constants.ts)。它和 UnoCSS 官方源码的分类有明显
-交集，但不是一一对应：
+[`wind3.ts`](../../src/features/sort/profiles/wind3.ts) 中冻结的 `wind3@1`
+profile。它和 UnoCSS 官方源码的分类有明显交集，但不是一一对应：
 
 - UnoCSS 的源码模块是实现边界，例如 `static.ts` 同时包含 display、contain、cursor、
   typography 和 field sizing；它不是一个适合直接展示给用户的排序组。
@@ -207,4 +207,5 @@ ui-behavior/interactivity、icons、svg、accessibility，见
 4. 单独测试首匹配冲突，例如 `content-center`、`content-empty`、
    `content-visibility-auto`，不要只统计“是否命中过某个正则”。
 5. UnoCSS 升级时 diff 三个 preset 的 `rules/default.ts`、规则模块出口和官方 target
-   文件，再决定是否扩充 `SEMANTIC_PATTERNS`。
+   文件；任何会改变输出的扩充都必须使用新的 profile 或 `orderVersion`，不能修改
+   已冻结的 `wind3@1`。

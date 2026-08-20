@@ -1,8 +1,7 @@
 import { filterFalsy, toArray } from '@ntnyq/utils'
 import { parseVariantGroup } from '@unocss/core'
-import type { ResponsiveVariant } from './constants'
-import { RESPONSIVE_VARIANTS } from './constants'
 import { matchesRegexOption } from './matchers'
+import type { SemanticProfileDefinition } from './profiles'
 import type { ResolvedSortOptions } from './resolved-types'
 
 /**
@@ -82,6 +81,7 @@ export function splitVariants(raw: string): {
  * @param options Resolved ordering options
  * @param groupRanks Variant group rank lookup
  * @param originalIndex Original utility position
+ * @param profile Resolved semantic ordering profile
  * @param breakpoints Analyzed responsive breakpoint ranks
  * @returns Classified variant sorting key
  */
@@ -90,6 +90,7 @@ export function classifyVariant(
   options: ResolvedSortOptions,
   groupRanks: Map<string, number>,
   originalIndex: number,
+  profile: SemanticProfileDefinition,
   breakpoints?: Record<string, number>,
 ): VariantKey {
   const customGroup = options.variants.customGroups.find(group =>
@@ -102,7 +103,7 @@ export function classifyVariant(
       group = 'theme'
     } else if (
       variant in (breakpoints ?? {}) ||
-      RESPONSIVE_VARIANTS.includes(variant as ResponsiveVariant)
+      profile.responsiveVariants.includes(variant)
     ) {
       group = 'responsive'
     } else if (variant.startsWith('@')) {
@@ -132,9 +133,7 @@ export function classifyVariant(
     }
   }
 
-  const responsiveIndex = RESPONSIVE_VARIANTS.indexOf(
-    variant as ResponsiveVariant,
-  )
+  const responsiveIndex = profile.responsiveVariants.indexOf(variant)
   let responsiveRank =
     breakpoints?.[variant] ??
     (responsiveIndex === -1 ? Number.MAX_SAFE_INTEGER : responsiveIndex)

@@ -1,7 +1,7 @@
 import { rules as wind3Rules } from '@unocss/preset-wind3/rules'
 import { describe, expect, it } from 'vitest'
 import { sortClassList } from '../../src'
-import { SEMANTIC_PATTERNS } from '../../src/features/sort/constants'
+import { WIND3_V1_PROFILE } from '../../src/features/sort/profiles'
 
 describe('built-in semantic groups', () => {
   it('classifies and orders every built-in semantic utility family', () => {
@@ -247,7 +247,9 @@ describe('built-in semantic groups', () => {
     const unclassified = staticMatchers.filter(matcher => {
       const normalized = matcher.startsWith('-') ? matcher.slice(1) : matcher
 
-      return !SEMANTIC_PATTERNS.some(({ pattern }) => pattern.test(normalized))
+      return !WIND3_V1_PROFILE.patterns.some(({ pattern }) =>
+        pattern.test(normalized),
+      )
     })
 
     expect(staticMatchers).toHaveLength(931)

@@ -1,98 +1,49 @@
 import { filterFalsy, isNonEmptyString, toArray } from '@ntnyq/utils'
 import type { UtilityAnalysis } from '../../uno/types'
-import { SEMANTIC_PATTERNS } from './constants'
 import { getGroupRank } from './group-descriptors'
 import type { GroupDescriptor } from './group-descriptors'
 import { matchesRegexOption } from './matchers'
+import type { SemanticProfileDefinition } from './profiles'
 import type { CustomGroup, CustomGroupMatch, RegexOption } from './types'
-
-/**
- * CSS property patterns mapped to semantic utility groups
- */
-const propertyGroups: readonly [RegExp, string][] = [
-  [
-    /^(?:visibility|overflow(?:-[xy])?$|object-|columns?$|float$|clear$|contain$|contain-intrinsic-|content-visibility$|backface-visibility$|break-(?:after|before|inside)$)/u,
-    'layout',
-  ],
-  [
-    /^(?:--un-border-spacing-|border-collapse$|border-spacing$|caption-side$|empty-cells$|table-layout$)/u,
-    'table',
-  ],
-  [/^(?:position|inset|top|right|bottom|left|z-index)/u, 'position'],
-  [/^display$/u, 'display'],
-  [/^(?:flex|order$)/u, 'flex'],
-  [/^(?:grid|grid-|column-|row-)/u, 'grid'],
-  [/^(?:align-|justify-|place-)/u, 'alignment'],
-  [/^(?:margin|padding|gap|scroll-margin|scroll-padding)/u, 'spacing'],
-  [
-    /^(?:width|height|inline-size|block-size|min-|max-|aspect-ratio)/u,
-    'sizing',
-  ],
-  [
-    /^(?:font|line-height|letter-spacing|text-|color$|white-space|word-|overflow-wrap$|hyphens|content$|list-style|writing-mode$|text-orientation$|-(?:webkit|moz)-font-smoothing$)/u,
-    'typography',
-  ],
-  [/^background/u, 'background'],
-  [/^(?:--un-mask-|(?:-webkit-)?mask(?:-|$))/u, 'mask'],
-  [/^--un-divide-/u, 'divide'],
-  [/^(?:border|outline|box-decoration)/u, 'border'],
-  [
-    /^(?:box-shadow|opacity|mix-blend|background-blend|image-rendering$)/u,
-    'effects',
-  ],
-  [/^(?:filter|backdrop-filter)/u, 'filters'],
-  [/^(?:transform|translate|rotate|scale|perspective)/u, 'transform'],
-  [/^(?:transition|view-transition)/u, 'transition'],
-  [/^animation/u, 'animation'],
-  [
-    /^(?:--un-(?:accent|caret)-|(?:-webkit-)?appearance$|accent-color$|caret-color$|color-scheme$|field-sizing$)/u,
-    'ui-behavior',
-  ],
-  [
-    /^(?:cursor|pointer-events|resize|scroll-|touch-action|user-select)/u,
-    'interactivity',
-  ],
-  [/^(?:fill|stroke)/u, 'svg'],
-]
-
-/**
- * Semantic groups that refine otherwise indistinguishable CSS properties
- */
-const semanticPropertyGroupOverrides = new Map([
-  ['divide', 'border'],
-  ['table', 'display'],
-])
 
 /**
  * Resolve the semantic group for a generated CSS property
  *
  * @param property Generated CSS property
+ * @param profile Resolved semantic ordering profile
  * @returns Semantic utility group when recognized
  */
-function getPropertyGroup(property: string): string | undefined {
-  return propertyGroups.find(([pattern]) => pattern.test(property))?.[1]
+function getPropertyGroup(
+  property: string,
+  profile: SemanticProfileDefinition,
+): string | undefined {
+  return profile.propertyGroups.find(([pattern]) => pattern.test(property))?.[1]
 }
 
 /**
  * Resolve semantic metadata for a base utility
  *
  * @param base Base utility name
+ * @param profile Resolved semantic ordering profile
  * @returns Semantic group, property, and rank metadata
  */
-export function getSemanticGroup(base: string): {
+export function getSemanticGroup(
+  base: string,
+  profile: SemanticProfileDefinition,
+): {
   group?: string
   property?: string
   rank: number
 } {
-  const rank = SEMANTIC_PATTERNS.findIndex(({ pattern }) => pattern.test(base))
+  const rank = profile.patterns.findIndex(({ pattern }) => pattern.test(base))
 
   if (rank === -1) {
-    return { rank: SEMANTIC_PATTERNS.length }
+    return { rank: profile.patterns.length }
   }
 
-  const matched = SEMANTIC_PATTERNS[rank]
+  const matched = profile.patterns[rank]
   if (!matched) {
-    return { rank: SEMANTIC_PATTERNS.length }
+    return { rank: profile.patterns.length }
   }
   return {
     group: matched.group,
@@ -200,15 +151,19 @@ export function matchesCustomGroup(
  *
  * @param properties Generated CSS properties
  * @param descriptors Descriptor lookup keyed by group name
+ * @param profile Resolved semantic ordering profile
  * @param semanticGroup Semantic class-name group when already recognized
  * @returns Highest-priority matching group
  */
 export function selectPropertyGroup(
   properties: string[],
   descriptors: Map<string, GroupDescriptor>,
+  profile: SemanticProfileDefinition,
   semanticGroup?: string,
 ): string | undefined {
-  const candidates = properties.map(property => getPropertyGroup(property))
+  const candidates = properties.map(property =>
+    getPropertyGroup(property, profile),
+  )
   const matchedGroups = filterFalsy(candidates)
   const [propertyGroup] = matchedGroups.toSorted(
     (left, right) =>
@@ -218,7 +173,7 @@ export function selectPropertyGroup(
   if (
     semanticGroup &&
     propertyGroup &&
-    semanticPropertyGroupOverrides.get(semanticGroup) === propertyGroup
+    profile.propertyGroupOverrides.get(semanticGroup) === propertyGroup
   ) {
     return semanticGroup
   }

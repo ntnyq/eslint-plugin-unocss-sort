@@ -68,6 +68,60 @@ describe('sorting invariants', () => {
     ).toBe('text-white component-a flex p-2 component-b bg-red border')
   })
 
+  it.each([
+    {
+      expected: 'component flex p-2',
+      input: 'component p-2 flex',
+      name: 'start',
+    },
+    {
+      expected: 'p-2 component flex',
+      input: 'p-2 component flex',
+      name: 'middle',
+    },
+    {
+      expected: 'flex p-2 component',
+      input: 'p-2 flex component',
+      name: 'end',
+    },
+  ])('pins an unknown utility at the $name partition position', fixture => {
+    expect(sortClassList(fixture.input)).toBe(fixture.expected)
+  })
+
+  it.each([
+    {
+      expected: 'btn flex p-2',
+      input: 'btn p-2 flex',
+      name: 'start',
+    },
+    {
+      expected: 'p-2 btn flex',
+      input: 'p-2 btn flex',
+      name: 'middle',
+    },
+    {
+      expected: 'flex p-2 btn',
+      input: 'p-2 flex btn',
+      name: 'end',
+    },
+  ])('pins a shortcut at the $name partition position', fixture => {
+    const analyses = {
+      btn: {
+        properties: ['padding'],
+        recognized: true,
+        shortcut: true,
+      },
+    }
+
+    expect(
+      sortClassList(
+        fixture.input,
+        { shortcuts: 'preserve-position' },
+        analyses,
+      ),
+    ).toBe(fixture.expected)
+  })
+
   it('keeps whitespace-only and empty inputs unchanged', () => {
     expect(sortClassList('')).toBe('')
     expect(sortClassList(' \t  ')).toBe(' \t  ')

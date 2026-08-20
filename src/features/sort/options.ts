@@ -1,6 +1,9 @@
-import { DEFAULT_SORT_OPTIONS, DEFAULT_VARIANT_GROUPS } from './constants'
+import { DEFAULT_SORT_OPTIONS } from './constants'
+import { resolveSemanticProfile } from './profiles'
 import type { ResolvedSortOptions } from './resolved-types'
 import type { SortOptions } from './types'
+
+export { resolveSemanticProfile } from './profiles'
 
 /**
  * Merge user options with the built-in ordering defaults
@@ -11,21 +14,25 @@ import type { SortOptions } from './types'
 export function resolveSortOptions(
   options: SortOptions = {},
 ): ResolvedSortOptions {
+  const profile = options.profile ?? DEFAULT_SORT_OPTIONS.profile
+  const orderVersion = options.orderVersion ?? DEFAULT_SORT_OPTIONS.orderVersion
+  const semanticProfile = resolveSemanticProfile(profile, orderVersion)
+
   return {
     alphabet: options.alphabet ?? DEFAULT_SORT_OPTIONS.alphabet,
-    customGroups: options.customGroups ?? [
-      ...DEFAULT_SORT_OPTIONS.customGroups,
-    ],
+    customGroups: options.customGroups ?? [...semanticProfile.customGroups],
     fallbackSort: {
       ...DEFAULT_SORT_OPTIONS.fallbackSort,
       ...options.fallbackSort,
     },
-    groups: options.groups ?? [...DEFAULT_SORT_OPTIONS.groups],
+    groups: options.groups ?? [...semanticProfile.groups],
     ignoreCase: options.ignoreCase ?? DEFAULT_SORT_OPTIONS.ignoreCase,
     locales: options.locales ?? DEFAULT_SORT_OPTIONS.locales,
     order: options.order ?? DEFAULT_SORT_OPTIONS.order,
+    orderVersion,
     partitionByNewLine:
       options.partitionByNewLine ?? DEFAULT_SORT_OPTIONS.partitionByNewLine,
+    profile,
     shortcuts: options.shortcuts ?? DEFAULT_SORT_OPTIONS.shortcuts,
     specialCharacters:
       options.specialCharacters ?? DEFAULT_SORT_OPTIONS.specialCharacters,
@@ -36,9 +43,9 @@ export function resolveSortOptions(
         options.variants?.compoundOrder ??
         DEFAULT_SORT_OPTIONS.variants.compoundOrder,
       customGroups: options.variants?.customGroups ?? [
-        ...DEFAULT_SORT_OPTIONS.variants.customGroups,
+        ...semanticProfile.variantCustomGroups,
       ],
-      groups: options.variants?.groups ?? [...DEFAULT_VARIANT_GROUPS],
+      groups: options.variants?.groups ?? [...semanticProfile.variantGroups],
       placement:
         options.variants?.placement ?? DEFAULT_SORT_OPTIONS.variants.placement,
       responsiveOrder:
