@@ -147,6 +147,13 @@ export function compareByType(
   }
 
   if (type === 'uno') {
+    return (
+      (left.analysis.officialOrder ?? Number.MAX_SAFE_INTEGER) -
+      (right.analysis.officialOrder ?? Number.MAX_SAFE_INTEGER)
+    )
+  }
+
+  if (type === 'uno-metadata') {
     const layerResult =
       (left.analysis.layerOrder ?? 0) - (right.analysis.layerOrder ?? 0)
     if (layerResult !== 0) {

@@ -52,7 +52,7 @@ describe('utility groups', () => {
             {
               fallbackSort: { order: 'desc', type: 'natural' },
               group: 'spacing',
-              type: 'uno',
+              type: 'uno-metadata',
             },
           ],
         },
@@ -270,7 +270,7 @@ describe('custom utility group matchers', () => {
               classNamePattern: '^brand-',
               fallbackSort: { order: 'desc', type: 'natural' },
               groupName: 'brand',
-              type: 'uno',
+              type: 'uno-metadata',
             },
           ],
           groups: ['display', 'brand'],

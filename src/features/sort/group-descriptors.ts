@@ -3,8 +3,8 @@ import type {
   FallbackSort,
   GroupOption,
   GroupOverride,
+  GroupSortType,
   SortOrder,
-  SortType,
 } from './types'
 
 /**
@@ -14,7 +14,7 @@ export interface GroupDescriptor {
   fallbackSort?: FallbackSort
   order?: SortOrder
   rank: number
-  type?: SortType
+  type?: GroupSortType
 }
 
 /**

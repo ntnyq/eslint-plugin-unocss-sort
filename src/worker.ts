@@ -256,11 +256,16 @@ export async function analyzeTokens(
       const metaSortValues = parsed
         .map(item => item[4]?.sort)
         .filter((value): value is number => isNumber(value))
+      const [firstParsed] = parsed
+      const officialOrder =
+        firstParsed[0] +
+        (firstParsed[5]?.variantHandlers?.length ?? 0) * 100_000
 
       result[token] = {
         breakpoints,
         layer,
         layerOrder: generator.config.layers[layer] ?? 0,
+        officialOrder,
         properties,
         recognized: true,
         shortcut: parsed.some(item => hasMatchedShortcut(item[5]?.shortcuts)),

@@ -15,6 +15,7 @@ it('analyzes configured UnoCSS utilities and shortcuts', () => {
   )
 
   expect(analysis['flex']).toMatchObject({
+    officialOrder: expect.any(Number),
     properties: ['display'],
     recognized: true,
     shortcut: false,
@@ -31,4 +32,17 @@ it('analyzes configured UnoCSS utilities and shortcuts', () => {
     recognized: false,
     shortcut: false,
   })
+})
+
+it('matches the official UnoCSS token ordering protocol', () => {
+  const input = 'text-white unknown flex tablet:flex p-2 hover:flex'
+  const analysis = analyzeUnoTokens(
+    input.split(' '),
+    import.meta.filename,
+    configPath,
+  )
+
+  expect(sortClassList(input, { type: 'uno' }, analysis)).toBe(
+    'unknown flex p-2 text-white hover:flex tablet:flex',
+  )
 })

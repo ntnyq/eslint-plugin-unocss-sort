@@ -1,5 +1,6 @@
-import { filterFalsy, isTruthy } from '@ntnyq/utils'
-import { collapseVariantGroup } from '@unocss/core'
+import { filterFalsy, isMap, isTruthy } from '@ntnyq/utils'
+import { collapseVariantGroup, parseVariantGroup } from '@unocss/core'
+import type { UtilityAnalysis } from '../../uno/types'
 import { createGroupDescriptors, isGroupOverride } from './group-descriptors'
 import { createSortingNode } from './groups'
 import type { AnalysisCollection } from './groups'
@@ -70,6 +71,73 @@ function sortPartition(
 }
 
 /**
+ * Get analyzed metadata for one expanded utility token
+ *
+ * @param analyses Collected UnoCSS analysis metadata
+ * @param token Expanded utility token
+ * @returns Analyzed token metadata when available
+ */
+function getTokenAnalysis(
+  analyses: AnalysisCollection | undefined,
+  token: string,
+): UtilityAnalysis | undefined {
+  return analyses && (isMap(analyses) ? analyses.get(token) : analyses[token])
+}
+
+/**
+ * Sort a class list with UnoCSS's official ordering protocol
+ *
+ * @param input Class list to sort
+ * @param analyses Collected UnoCSS analysis metadata
+ * @returns Class list ordered like UnoCSS's official ESLint rule
+ */
+function sortUnoOfficial(input: string, analyses?: AnalysisCollection): string {
+  if (!input.trim()) {
+    return input
+  }
+
+  const expandedResult = parseVariantGroup(input)
+  const tokens = filterFalsy(expandedResult.expanded.split(/\s+/u))
+  const unknown: string[] = []
+  const recognized: { order: number; token: string }[] = []
+
+  for (const token of tokens) {
+    const analysis = getTokenAnalysis(analyses, token)
+    if (analysis?.recognized) {
+      recognized.push({
+        order: analysis.officialOrder ?? Number.MAX_SAFE_INTEGER,
+        token,
+      })
+    } else {
+      unknown.push(token)
+    }
+  }
+
+  let sorted = recognized
+    .toSorted((left, right) => {
+      const orderResult = left.order - right.order
+      return orderResult === 0
+        ? left.token.localeCompare(right.token)
+        : orderResult
+    })
+    .map(item => item.token)
+    .join(' ')
+
+  if (expandedResult.prefixes.length > 0) {
+    sorted = collapseVariantGroup(sorted, expandedResult.prefixes)
+  }
+
+  const content = [...unknown, sorted]
+    .filter(value => isTruthy(value))
+    .join(' ')
+    .trim()
+  const leadingWhitespace = /^\s/u.test(input) ? ' ' : ''
+  const trailingWhitespace = /\s$/u.test(input) ? ' ' : ''
+
+  return `${leadingWhitespace}${content}${trailingWhitespace}`
+}
+
+/**
  * Extract expanded utility tokens from a class list
  *
  * @param input Class list
@@ -86,12 +154,12 @@ export function getClassTokens(input: string): string[] {
  * @returns Whether UnoCSS runtime analysis is required
  */
 export function requiresUnoAnalysis(options: SortOptions): boolean {
-  if (options.type === 'uno') {
+  if (options.type === 'uno' || options.type === 'uno-metadata') {
     return true
   }
 
   const groupOverrides = options.groups?.filter(isGroupOverride) ?? []
-  if (groupOverrides.some(group => group.type === 'uno')) {
+  if (groupOverrides.some(group => group.type === 'uno-metadata')) {
     return true
   }
 
@@ -105,7 +173,7 @@ export function requiresUnoAnalysis(options: SortOptions): boolean {
 
   return isTruthy(
     options.customGroups?.some(group => {
-      if (group.type === 'uno') {
+      if (group.type === 'uno-metadata') {
         return true
       }
 
@@ -135,6 +203,10 @@ export function sortClassList(
   analyses?: AnalysisCollection,
 ): string {
   const resolvedOptions = resolveSortOptions(options)
+
+  if (resolvedOptions.type === 'uno') {
+    return sortUnoOfficial(input, analyses)
+  }
 
   if (!resolvedOptions.partitionByNewLine) {
     return sortPartition(input, resolvedOptions, analyses)

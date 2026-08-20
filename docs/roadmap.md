@@ -6,7 +6,7 @@ ecosystem coverage second, and convenience features last.
 
 The current baseline already includes:
 
-- stable semantic sorting and UnoCSS metadata-aware sorting
+- stable semantic sorting, official UnoCSS ordering, and metadata-aware sorting
 - `analysis: 'auto' | 'always' | 'never'`
 - unified attribute, callee, tag, and variable target selectors
 - argument selection and object key/value path matchers
@@ -15,20 +15,16 @@ The current baseline already includes:
 
 ## P0: Ordering protocol before a stable release
 
-### Define exact UnoCSS ordering modes
+### Define exact UnoCSS ordering modes (targeted for 0.1.0)
 
-The current `type: 'uno'` comparator combines plugin variant ordering with
-UnoCSS layer, rule order, and `meta.sort` metadata. It does not promise byte-for-
-byte parity with the official UnoCSS `order` rule.
+The ordering protocols are now explicit:
 
-Plan:
+- `uno` follows the official UnoCSS `order` sorting protocol
+- `uno-metadata` retains plugin groups and variants while using UnoCSS layer,
+  rule order, and `meta.sort` metadata
+- migration and compatibility fixtures lock both behaviors
 
-- either rename the current behavior to `uno-metadata` and add `uno-official`
-- or change `uno` to exact official behavior and offer the enhanced behavior
-  under a new name
-- add migration fixtures that compare both modes against the official sorter
-
-This must be settled before users persist an ordering protocol across a large
+Keep these protocols locked before users persist their output across a large
 repository.
 
 ### Version semantic ordering profiles

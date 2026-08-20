@@ -201,12 +201,22 @@ The main configuration layers are utility groups, group-local comparators, varia
 }
 ```
 
-Available sort types are `semantic`, `uno`, `natural`, `alphabetical`, `code-point`, `custom`, and `unsorted`.
+Available sort types are `semantic`, `uno`, `uno-metadata`, `natural`,
+`alphabetical`, `code-point`, `custom`, and `unsorted`.
 
 - `semantic` is the stable default.
-- `uno` uses the configured generator's layer, rule order, and `meta.sort` metadata.
+- `uno` matches the official UnoCSS `order` sorting protocol for the complete
+  class list.
+- `uno-metadata` keeps this plugin's configurable groups and variants while
+  comparing utilities by layer, rule order, and `meta.sort` metadata.
 - `unsorted` moves groups but preserves their internal source order.
 - Every comparator falls back to deterministic code-point order and then original position.
+
+The official `uno` protocol moves unknown utilities before recognized ones,
+uses UnoCSS's rule and variant rank, and normalizes whitespace like the official
+rule. Other grouping, variant, unknown, shortcut, comparison, whitespace, and
+partition options do not alter that protocol. Use `uno-metadata` when those
+options should remain active.
 
 `unknown: 'preserve-position'` treats an unknown class as a pinned node, so recognized utilities do not unexpectedly cross project component classes.
 
@@ -237,7 +247,12 @@ The `analysis` option controls when that worker is used:
 - `always` analyzes every discovered class list and requires a discoverable config.
 - `never` guarantees pure semantic sorting without loading UnoCSS. Combining it with metadata-dependent options is a configuration error.
 
-`type: 'uno'` requires a discoverable UnoCSS config. Default `semantic` sorting works without one.
+Both `type: 'uno'` and `type: 'uno-metadata'` require a discoverable UnoCSS
+config. Default `semantic` sorting works without one.
+
+When upgrading from a release before 0.1.0, replace an existing `type: 'uno'`
+with `type: 'uno-metadata'` to preserve its behavior. See the
+[0.1.0 migration guide](./docs/migrations/v0.1.0.md).
 
 ## Duplicate classes
 

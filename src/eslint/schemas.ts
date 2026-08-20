@@ -38,6 +38,22 @@ const sortTypeSchema = {
   enum: [
     'semantic',
     'uno',
+    'uno-metadata',
+    'natural',
+    'alphabetical',
+    'code-point',
+    'custom',
+    'unsorted',
+  ],
+} as const
+
+/**
+ * JSON schema for group-local sorting strategies
+ */
+const groupSortTypeSchema = {
+  enum: [
+    'semantic',
+    'uno-metadata',
     'natural',
     'alphabetical',
     'code-point',
@@ -138,7 +154,7 @@ export const orderOptionsSchema = {
           fallbackSort: fallbackSortSchema,
           groupName: { type: 'string' },
           order: { enum: ['asc', 'desc'] },
-          type: sortTypeSchema,
+          type: groupSortTypeSchema,
         },
         required: ['groupName'],
         type: 'object',
@@ -162,7 +178,7 @@ export const orderOptionsSchema = {
                 ],
               },
               order: { enum: ['asc', 'desc'] },
-              type: sortTypeSchema,
+              type: groupSortTypeSchema,
             },
             required: ['group'],
             type: 'object',

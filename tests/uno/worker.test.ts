@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
+import { sortClassList } from '../../src'
 import { analyzeTokens } from '../../src/worker'
 
 const configPath = fileURLToPath(
@@ -22,12 +23,21 @@ describe('UnoCSS analysis worker', () => {
   it('extracts properties, layers, rule metadata, shortcuts, and breakpoints', async () => {
     const result = await analyzeTokens(
       configPath,
-      ['layer-low', 'layer-high', 'multi-prop', 'btn', 'missing', 'layer-low'],
+      [
+        'layer-low',
+        'layer-high',
+        'multi-prop',
+        'btn',
+        'missing',
+        'hover:layer-low',
+        'layer-low',
+      ],
       sourceFilename,
     )
 
     expect(Object.keys(result).toSorted()).toStrictEqual([
       'btn',
+      'hover:layer-low',
       'layer-high',
       'layer-low',
       'missing',
@@ -37,6 +47,7 @@ describe('UnoCSS analysis worker', () => {
       layer: 'reset',
       layerOrder: -10,
       metaSort: 7,
+      officialOrder: expect.any(Number),
       properties: ['color'],
       recognized: true,
       shortcut: false,
@@ -75,6 +86,13 @@ describe('UnoCSS analysis worker', () => {
       recognized: false,
       shortcut: false,
     })
+    expect(
+      sortClassList(
+        'layer-high missing btn layer-low hover:layer-low multi-prop',
+        { type: 'uno' },
+        result,
+      ),
+    ).toBe('missing btn layer-low layer-high multi-prop hover:layer-low')
   })
 
   it('discovers a configuration from physical and virtual filenames', async () => {

@@ -50,6 +50,40 @@ describe.each<{
   })
 })
 
+describe('UnoCSS official sorting', () => {
+  it('matches the official unknown, rule, variant, and tie ordering', () => {
+    const analyses: Record<string, UtilityAnalysis> = {
+      'custom-a': recognizedUtility({ officialOrder: 10 }),
+      'custom-b': recognizedUtility({ officialOrder: 10 }),
+      'custom-z': recognizedUtility({ officialOrder: 5 }),
+      'hover:custom-a': recognizedUtility({ officialOrder: 100_010 }),
+    }
+
+    expect(
+      sortClassList(
+        'custom-b unknown-b hover:custom-a custom-z unknown-a custom-a',
+        { type: 'uno' },
+        analyses,
+      ),
+    ).toBe('unknown-b unknown-a custom-z custom-a custom-b hover:custom-a')
+  })
+
+  it('uses the official whitespace and variant-group normalization', () => {
+    const analyses: Record<string, UtilityAnalysis> = {
+      'hover:custom-a': recognizedUtility({ officialOrder: 100_010 }),
+      'hover:custom-b': recognizedUtility({ officialOrder: 100_010 }),
+    }
+
+    expect(
+      sortClassList(
+        ' \nhover:(custom-b\tcustom-a) \n',
+        { type: 'uno' },
+        analyses,
+      ),
+    ).toBe(' hover:(custom-a custom-b) ')
+  })
+})
+
 describe('UnoCSS metadata sorting', () => {
   it('sorts by layer, native rule order, and meta.sort in sequence', () => {
     const analyses: Record<string, UtilityAnalysis> = {
@@ -78,7 +112,7 @@ describe('UnoCSS metadata sorting', () => {
     expect(
       sortClassList(
         'custom-a custom-b custom-c custom-d',
-        { fallbackSort: { type: 'code-point' }, type: 'uno' },
+        { fallbackSort: { type: 'code-point' }, type: 'uno-metadata' },
         analyses,
       ),
     ).toBe('custom-b custom-d custom-c custom-a')
@@ -95,7 +129,7 @@ describe('UnoCSS metadata sorting', () => {
         'p-2 p-10',
         {
           fallbackSort: { order: 'desc', type: 'natural' },
-          type: 'uno',
+          type: 'uno-metadata',
         },
         analyses,
       ),

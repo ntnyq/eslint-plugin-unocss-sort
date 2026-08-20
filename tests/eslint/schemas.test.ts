@@ -24,6 +24,10 @@ describe('order option schema', () => {
     { options: { unsupported: true }, reason: 'unknown top-level property' },
     { options: { type: 'random' }, reason: 'unknown sort type' },
     {
+      options: { groups: [{ group: 'spacing', type: 'uno' }] },
+      reason: 'official UnoCSS sorting as a group override',
+    },
+    {
       options: { fallbackSort: { type: 'semantic' } },
       reason: 'unsupported fallback type',
     },

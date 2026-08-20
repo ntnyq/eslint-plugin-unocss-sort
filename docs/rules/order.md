@@ -167,7 +167,8 @@ export default [
 Runtime analysis provides rule order, layers, generated CSS properties,
 shortcuts, `meta.sort` values, and configured breakpoints. It is required by:
 
-- `type: 'uno'`, including a group or custom-group override
+- `type: 'uno'` or `type: 'uno-metadata'`
+- a group or custom-group `type: 'uno-metadata'` override
 - `shortcuts: 'group' | 'preserve-position'`
 - an explicitly configured `variants.responsiveOrder: 'theme'`
 - custom group matchers using `cssPropertyPattern`, `layer`, `recognized`, or
@@ -175,20 +176,31 @@ shortcuts, `meta.sort` values, and configured breakpoints. It is required by:
 
 ### `type`
 
-Selects the default comparator used inside each utility group.
+Selects the ordering protocol. Most values choose the default comparator used
+inside each utility group. The `uno` value instead selects UnoCSS's official
+whole-list protocol.
 
-| Value            | Behavior                                                                   |
-| ---------------- | -------------------------------------------------------------------------- |
-| `'semantic'`     | The default. Uses stable built-in semantic ranks, then natural comparison. |
-| `'uno'`          | Uses analyzed UnoCSS layer, rule order, and `meta.sort` metadata.          |
-| `'natural'`      | Uses locale-aware comparison with numeric segments.                        |
-| `'alphabetical'` | Uses locale-aware comparison without numeric segments.                     |
-| `'code-point'`   | Compares Unicode code points.                                              |
-| `'custom'`       | Uses the character order provided by `alphabet`.                           |
-| `'unsorted'`     | Moves the group as a unit but preserves source order within it.            |
+| Value            | Behavior                                                                    |
+| ---------------- | --------------------------------------------------------------------------- |
+| `'semantic'`     | The default. Uses stable built-in semantic ranks, then natural comparison.  |
+| `'uno'`          | Matches the official UnoCSS `order` sorting protocol for the complete list. |
+| `'uno-metadata'` | Uses plugin groups plus UnoCSS layer, rule order, and `meta.sort` metadata. |
+| `'natural'`      | Uses locale-aware comparison with numeric segments.                         |
+| `'alphabetical'` | Uses locale-aware comparison without numeric segments.                      |
+| `'code-point'`   | Compares Unicode code points.                                               |
+| `'custom'`       | Uses the character order provided by `alphabet`.                            |
+| `'unsorted'`     | Moves the group as a unit but preserves source order within it.             |
 
-`type: 'uno'` is metadata-aware ordering and does not promise byte-for-byte
-parity with UnoCSS's official `order` rule.
+The official `uno` protocol moves unknown utilities before recognized ones,
+preserves their source order, and orders recognized utilities by UnoCSS's rule
+and variant rank with locale comparison as a tie-breaker. It also uses the
+official whitespace and variant-group normalization. Consequently, `groups`,
+`customGroups`, `variants`, `unknown`, `shortcuts`, comparison options,
+`partitionByNewLine`, and `whitespace` do not alter this protocol.
+
+Use `uno-metadata` when plugin-defined groups, variants, pinned unknowns, or
+whitespace preservation should remain active. Only `uno-metadata` is accepted
+as a group or custom-group override.
 
 ### `groups`
 

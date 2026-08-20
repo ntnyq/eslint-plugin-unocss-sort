@@ -4,11 +4,12 @@
 export type SortOrder = 'asc' | 'desc'
 
 /**
- * Strategy used to compare utility classes within a group
+ * Strategy used to order utility classes
  */
 export type SortType =
   | 'semantic'
   | 'uno'
+  | 'uno-metadata'
   | 'natural'
   | 'alphabetical'
   | 'code-point'
@@ -16,9 +17,17 @@ export type SortType =
   | 'unsorted'
 
 /**
+ * Strategies supported by group-local comparison
+ */
+export type GroupSortType = Exclude<SortType, 'uno'>
+
+/**
  * Sorting strategies available after the primary comparison is equal
  */
-export type FallbackSortType = Exclude<SortType, 'semantic' | 'uno'>
+export type FallbackSortType = Exclude<
+  SortType,
+  'semantic' | 'uno' | 'uno-metadata'
+>
 
 /**
  * Behavior applied to special characters before string comparison
@@ -84,7 +93,7 @@ export interface GroupOverride {
   /**
    * Comparison strategy used within the group
    */
-  type?: SortType
+  type?: GroupSortType
 }
 
 /**
@@ -154,7 +163,7 @@ export type CustomGroup = {
   /**
    * Comparison strategy used within the custom group
    */
-  type?: SortType
+  type?: GroupSortType
 } & (
   | CustomGroupMatch
   | {
@@ -265,7 +274,7 @@ export interface SortOptions {
   specialCharacters?: SpecialCharacters
 
   /**
-   * Default comparison strategy used within utility groups
+   * Ordering protocol or default group comparison strategy
    */
   type?: SortType
 
