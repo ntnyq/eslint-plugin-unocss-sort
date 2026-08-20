@@ -14,6 +14,7 @@ import { loadConfig } from '@unocss/config'
 import { createGenerator } from '@unocss/core'
 import type { Shortcut, UnoGenerator } from '@unocss/core'
 import { runAsWorker } from 'synckit'
+import { expandAnalyzedTokens, getUtilitySyntax } from './uno/syntax.ts'
 import type { UtilityAnalysis } from './uno/types'
 
 /**
@@ -235,14 +236,17 @@ export async function analyzeTokens(
   const generator = await getGenerator(configPath, filename)
   const result: Record<string, UtilityAnalysis> = Object.create(null)
   const breakpoints = getBreakpoints(generator)
+  const separators = [...generator.config.separators]
+  const expandedTokens = expandAnalyzedTokens(tokens, separators)
 
   await Promise.all(
-    unique(tokens).map(async token => {
+    unique(expandedTokens).map(async token => {
       const parsed = await generator.parseToken(token)
       if (!isNonEmptyArray(parsed)) {
         result[token] = {
           properties: [],
           recognized: false,
+          separators,
           shortcut: false,
         }
         return
@@ -260,14 +264,17 @@ export async function analyzeTokens(
       const officialOrder =
         firstParsed[0] +
         (firstParsed[5]?.variantHandlers?.length ?? 0) * 100_000
+      const syntax = getUtilitySyntax(firstParsed, separators)
 
       result[token] = {
+        ...syntax,
         breakpoints,
         layer,
         layerOrder: generator.config.layers[layer] ?? 0,
         officialOrder,
         properties,
         recognized: true,
+        separators,
         shortcut: parsed.some(item => hasMatchedShortcut(item[5]?.shortcuts)),
         unoOrder: Math.min(...parsed.map(item => item[0])),
         ...(isNonEmptyArray(metaSortValues) && {

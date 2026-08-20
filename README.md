@@ -250,7 +250,13 @@ Provide the same setting used by the official UnoCSS ESLint integration:
 }
 ```
 
-With a config path, the rule analyzes all generated outputs for recognized utilities, shortcuts, CSS properties, layers, and native order metadata. The analyzer runs in a synchronous worker suitable for ESLint and reloads when config source mtimes change.
+With a config path, the rule analyzes all generated outputs for recognized
+utilities, shortcuts, CSS properties, layers, native order metadata, configured
+utility prefixes, and variant separators. Prefixes are removed only for
+classification; fixes preserve the original token text. Configured separators
+are used for variant parsing and variant-group expansion without splitting
+arbitrary variants or quoted bracket values. The analyzer runs in a synchronous
+worker suitable for ESLint and reloads when config source mtimes change.
 
 The `analysis` option controls when that worker is used:
 
@@ -267,6 +273,10 @@ with `type: 'uno-metadata'` to preserve its behavior. See the
 
 Version 0.2.0 adds explicit semantic profile coordinates without changing the
 default output. See the [0.2.0 migration guide](./docs/migrations/v0.2.0.md).
+
+Version 0.3.0 makes config-backed sorting honor resolved utility prefixes and
+variant separators. See the
+[0.3.0 migration guide](./docs/migrations/v0.3.0.md).
 
 ## Duplicate classes
 

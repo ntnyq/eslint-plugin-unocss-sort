@@ -85,8 +85,12 @@ export function createSortingNode(
   profile: SemanticProfileDefinition,
   analyses?: AnalysisCollection,
 ): SortingNode {
-  const { base, variants: variantNames } = splitVariants(raw)
   const analysis = getAnalysis(analyses, raw)
+  const parsed =
+    analysis.base === undefined
+      ? splitVariants(raw, analysis.separators)
+      : { base: analysis.base, variants: analysis.variants ?? [] }
+  const { base, variants: variantNames } = parsed
   const normalizedBase = base.startsWith('-') ? base.slice(1) : base
   const semantic = getSemanticGroup(normalizedBase, profile)
   const arbitrary = isArbitraryProperty(normalizedBase)

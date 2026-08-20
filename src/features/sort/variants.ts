@@ -18,9 +18,13 @@ export interface VariantKey {
  * Split a utility token into its base utility and variants
  *
  * @param raw Utility token to split
+ * @param separators Optional UnoCSS variant separators
  * @returns Base utility and ordered variant names
  */
-export function splitVariants(raw: string): {
+export function splitVariants(
+  raw: string,
+  separators?: string[],
+): {
   base: string
   variants: string[]
 } {
@@ -31,7 +35,12 @@ export function splitVariants(raw: string): {
   let quote: '"' | "'" | undefined = undefined
   let isEscaped = false
 
-  for (const character of raw) {
+  const variantSeparators = (separators ?? [':'])
+    .filter(separator => separator !== '-')
+    .toSorted((left, right) => right.length - left.length)
+
+  for (let index = 0; index < raw.length; index += 1) {
+    const character = raw[index] ?? ''
     if (isEscaped) {
       current += character
       isEscaped = false
@@ -57,9 +66,17 @@ export function splitVariants(raw: string): {
         parenthesisDepth = Math.max(0, parenthesisDepth - 1)
       }
 
-      if (character === ':' && bracketDepth === 0 && parenthesisDepth === 0) {
+      const separator =
+        bracketDepth === 0 && parenthesisDepth === 0
+          ? variantSeparators.find(candidate =>
+              raw.startsWith(candidate, index),
+            )
+          : undefined
+
+      if (separator) {
         parts.push(current)
         current = ''
+        index += separator.length - 1
       } else {
         current += character
       }
@@ -177,14 +194,18 @@ export function createVariantGroupRanks(
  * Expand UnoCSS variant group syntax without throwing on invalid input
  *
  * @param input Class list containing optional variant groups
+ * @param separators Optional UnoCSS variant separators
  * @returns Expanded class list and prefixes used for collapsing
  */
-export function expandVariantGroups(input: string): {
+export function expandVariantGroups(
+  input: string,
+  separators?: string[],
+): {
   expanded: string
   prefixes: string[]
 } {
   try {
-    return parseVariantGroup(input)
+    return parseVariantGroup(input, separators)
   } catch {
     return { expanded: input, prefixes: [] }
   }

@@ -30,6 +30,7 @@ it('analyzes configured UnoCSS utilities and shortcuts', () => {
   expect(analysis['not-a-utility']).toStrictEqual({
     properties: [],
     recognized: false,
+    separators: [':', '-'],
     shortcut: false,
   })
 })

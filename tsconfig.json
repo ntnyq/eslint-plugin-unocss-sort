@@ -4,6 +4,7 @@
     "target": "ESNext",
     "lib": ["DOM", "ES2023"],
     "module": "ESNext",
+    "allowImportingTsExtensions": true,
     "types": ["node"],
     "esModuleInterop": true,
     "skipLibCheck": true

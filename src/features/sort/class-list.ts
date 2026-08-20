@@ -11,6 +11,26 @@ import type { SortOptions } from './types'
 import { createVariantGroupRanks, expandVariantGroups } from './variants'
 
 /**
+ * Get resolved UnoCSS separators from collected analysis metadata
+ *
+ * @param analyses Collected UnoCSS analysis metadata
+ * @returns Resolved variant separators when analysis was performed
+ */
+function getAnalysisSeparators(
+  analyses: AnalysisCollection | undefined,
+): string[] | undefined {
+  if (!analyses) {
+    return undefined
+  }
+
+  const values = isMap(analyses) ? analyses.values() : Object.values(analyses)
+  const matchingAnalysis = [...values].find(analysis => analysis?.separators)
+  const { separators } = matchingAnalysis ?? {}
+
+  return separators
+}
+
+/**
  * Sort one whitespace-preserving class list partition
  *
  * @param input Class list partition
@@ -34,7 +54,8 @@ function sortPartition(
     return input
   }
 
-  const expandedResult = expandVariantGroups(content)
+  const separators = getAnalysisSeparators(analyses)
+  const expandedResult = expandVariantGroups(content, separators)
   const tokens = filterFalsy(expandedResult.expanded.split(/\s+/u))
   const descriptors = createGroupDescriptors(options.groups)
   const variantGroupRanks = createVariantGroupRanks(options.variants.groups)
@@ -98,7 +119,10 @@ function sortUnoOfficial(input: string, analyses?: AnalysisCollection): string {
     return input
   }
 
-  const expandedResult = parseVariantGroup(input)
+  const expandedResult = parseVariantGroup(
+    input,
+    getAnalysisSeparators(analyses),
+  )
   const tokens = filterFalsy(expandedResult.expanded.split(/\s+/u))
   const unknown: string[] = []
   const recognized: { order: number; token: string }[] = []
@@ -143,10 +167,13 @@ function sortUnoOfficial(input: string, analyses?: AnalysisCollection): string {
  * Extract expanded utility tokens from a class list
  *
  * @param input Class list
+ * @param separators Optional UnoCSS variant separators
  * @returns Expanded utility tokens
  */
-export function getClassTokens(input: string): string[] {
-  return filterFalsy(expandVariantGroups(input).expanded.split(/\s+/u))
+export function getClassTokens(input: string, separators?: string[]): string[] {
+  return filterFalsy(
+    expandVariantGroups(input, separators).expanded.split(/\s+/u),
+  )
 }
 
 /**

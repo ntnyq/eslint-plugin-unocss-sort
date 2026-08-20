@@ -18,6 +18,9 @@ const minimalConfigPath = fileURLToPath(
 const invalidBreakpointConfigPath = fileURLToPath(
   new URL('../fixtures/worker/invalid-breakpoint.config.ts', import.meta.url),
 )
+const syntaxConfigPath = fileURLToPath(
+  new URL('../fixtures/worker/syntax.config.ts', import.meta.url),
+)
 
 describe('UnoCSS analysis worker', () => {
   it('extracts properties, layers, rule metadata, shortcuts, and breakpoints', async () => {
@@ -84,6 +87,7 @@ describe('UnoCSS analysis worker', () => {
     expect(result['missing']).toStrictEqual({
       properties: [],
       recognized: false,
+      separators: [':', '-'],
       shortcut: false,
     })
     expect(
@@ -180,6 +184,58 @@ describe('UnoCSS analysis worker', () => {
       invalid: 1,
       valid: 0,
     })
+  })
+
+  it('derives prefixed utilities and separators from the resolved config', async () => {
+    const result = await analyzeTokens(
+      syntaxConfigPath,
+      [
+        'uno-text-sm',
+        'sm__(uno-p-2',
+        'uno-flex)',
+        "[&:nth-child(2)]__uno-content-['a:b']",
+      ],
+      sourceFilename,
+    )
+
+    expect(result['uno-text-sm']).toMatchObject({
+      base: 'text-sm',
+      prefix: 'uno-',
+      separators: ['__'],
+      variants: [],
+    })
+    expect(result['sm__uno-p-2']).toMatchObject({
+      base: 'p-2',
+      prefix: 'uno-',
+      separators: ['__'],
+      variants: ['sm'],
+    })
+    expect(result['sm__uno-flex']).toMatchObject({
+      base: 'flex',
+      prefix: 'uno-',
+      separators: ['__'],
+      variants: ['sm'],
+    })
+    expect(result["[&:nth-child(2)]__uno-content-['a:b']"]).toMatchObject({
+      base: "content-['a:b']",
+      prefix: 'uno-',
+      separators: ['__'],
+      variants: ['[&:nth-child(2)]'],
+    })
+  })
+
+  it('sorts configured syntax without changing complex token contents', async () => {
+    const input =
+      "[&:nth-child(2)]__uno-content-['a:b'] uno-text-sm sm__(uno-p-2 uno-flex)"
+    const result = await analyzeTokens(
+      syntaxConfigPath,
+      input.split(' '),
+      sourceFilename,
+    )
+
+    expect(sortClassList(input, {}, result)).toBe(
+      "uno-text-sm sm__(uno-flex uno-p-2) [&:nth-child(2)]__uno-content-['a:b']",
+    )
   })
 
   it('rejects automatic analysis when no configuration can be found', async () => {

@@ -167,7 +167,13 @@ export default [
 ```
 
 Runtime analysis provides rule order, layers, generated CSS properties,
-shortcuts, `meta.sort` values, and configured breakpoints. It is required by:
+shortcuts, `meta.sort` values, configured breakpoints, utility prefixes, and
+variant separators. Prefixes are removed before semantic classification while
+the original token text remains unchanged. Separators are used outside bracket,
+parenthesis, quoted, and escaped regions when parsing variants and expanding
+variant groups.
+
+Runtime analysis is required by:
 
 - `type: 'uno'` or `type: 'uno-metadata'`
 - a group or custom-group `type: 'uno-metadata'` override

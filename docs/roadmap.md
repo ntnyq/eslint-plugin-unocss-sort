@@ -37,6 +37,14 @@ The ordering protocols are now explicit:
 Future `wind4` or `property` profiles must be introduced as new coordinates;
 they must not modify `wind3@1`.
 
+### 0.3.0: Configured syntax conventions
+
+- resolved preset prefixes are removed before semantic classification without
+  changing fixed token text
+- resolved variant separators drive token parsing and variant-group expansion
+- arbitrary variants, quoted bracket values, escapes, and default semantic
+  fallback behavior remain compatible
+
 ## P0: Compatibility hardening
 
 ### Expand invariant and compatibility fixtures
@@ -54,19 +62,6 @@ Ongoing coverage:
 - ESLint 9 and 10 package smoke tests for every exported rule
 
 ## P1: High-value ecosystem coverage
-
-### Read syntax conventions from UnoCSS configuration
-
-Derive supported prefixes, variant separators, and related syntax conventions
-from the loaded UnoCSS setup where possible. Avoid accumulating rule-specific
-manual exceptions in the tokenizer.
-
-Acceptance criteria:
-
-- custom prefixes do not change semantic classification incorrectly
-- configured separators are parsed without breaking arbitrary variants or
-  quoted bracket syntax
-- pure semantic mode remains deterministic without a config
 
 ### Add language adapters at the target visitor seam
 
